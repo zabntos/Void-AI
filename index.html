@@ -2,2046 +2,487 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#10091d">
-  <meta name="description" content="Void AI – dein persönlicher KI-Chat.">
-  <title>Void AI</title>
-
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #090611;
-      --bg-soft: #10091d;
-      --panel: #150d24;
-      --panel-2: #1b1030;
-      --panel-3: #21143a;
-      --purple: #b86cff;
-      --purple-bright: #d7a4ff;
-      --purple-deep: #7b2bcb;
-      --text: #f7f1ff;
-      --muted: #b7a9c8;
-      --muted-2: #8c7da0;
-      --border: rgba(210, 170, 255, .17);
-      --border-strong: rgba(210, 170, 255, .32);
-      --danger: #ff7e9a;
-      --success: #8cf0bd;
-      --warning: #ffd27c;
-      --shadow: 0 24px 80px rgba(0, 0, 0, .38);
-      --radius: 20px;
-      --sidebar-width: 280px;
-      --header-height: 72px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      min-height: 100%;
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        radial-gradient(ellipse at 15% 0%, rgba(119, 45, 180, .15), transparent 36%),
-        radial-gradient(ellipse at 95% 80%, rgba(80, 28, 132, .12), transparent 34%),
-        var(--bg);
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button,
-    input,
-    textarea {
-      font: inherit;
-    }
-
-    button {
-      color: inherit;
-    }
-
-    button:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible {
-      outline: 2px solid var(--purple-bright);
-      outline-offset: 3px;
-    }
-
-    button:disabled {
-      cursor: not-allowed;
-      opacity: .55;
-    }
-
-    a {
-      color: var(--purple-bright);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    .app-shell {
-      display: flex;
-      min-height: 100vh;
-      width: 100%;
-    }
-
-    .sidebar {
-      width: var(--sidebar-width);
-      flex: 0 0 var(--sidebar-width);
-      min-height: 100vh;
-      padding: 22px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-      background: rgba(14, 8, 24, .91);
-      border-right: 1px solid var(--border);
-      backdrop-filter: blur(18px);
-      z-index: 20;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-      padding: 4px 5px 12px;
-    }
-
-    .brand-orb {
-      position: relative;
-      width: 43px;
-      height: 43px;
-      flex: 0 0 43px;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at 30% 25%, #f4dcff 0%, #c785ff 17%, #7a29ca 46%, #241039 76%);
-      box-shadow: 0 0 25px rgba(176, 93, 255, .42), inset -5px -7px 14px rgba(0, 0, 0, .45);
-      animation: orb-float 5s ease-in-out infinite;
-    }
-
-    .brand-orb::after {
-      content: "";
-      position: absolute;
-      top: 8px;
-      left: 9px;
-      width: 10px;
-      height: 7px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, .75);
-      filter: blur(2px);
-      transform: rotate(-30deg);
-    }
-
-    .brand-name {
-      font-size: 21px;
-      font-weight: 800;
-      letter-spacing: -.7px;
-      line-height: 1.1;
-    }
-
-    .brand-caption {
-      margin-top: 4px;
-      color: var(--muted-2);
-      font-size: 11px;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-
-    .new-chat-button,
-    .primary-button {
-      border: 1px solid rgba(221, 183, 255, .35);
-      border-radius: 14px;
-      background: linear-gradient(135deg, #a64cf0, #6c24b8);
-      color: white;
-      box-shadow: 0 8px 25px rgba(120, 40, 200, .22);
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
-    }
-
-    .new-chat-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      min-height: 48px;
-      padding: 12px 15px;
-    }
-
-    .new-chat-button:hover,
-    .primary-button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.08);
-      box-shadow: 0 11px 28px rgba(120, 40, 200, .3);
-    }
-
-    .sidebar-section-title {
-      padding: 0 9px;
-      color: var(--muted-2);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 1.7px;
-      text-transform: uppercase;
-    }
-
-    .history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      overflow-y: auto;
-      min-height: 60px;
-      max-height: calc(100vh - 360px);
-    }
-
-    .history-empty {
-      padding: 12px 10px;
-      color: var(--muted-2);
-      font-size: 13px;
-    }
-
-    .history-item {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      width: 100%;
-      min-width: 0;
-      border: 1px solid transparent;
-      border-radius: 12px;
-      background: transparent;
-      color: var(--muted);
-      text-align: left;
-      padding: 10px 11px;
-      cursor: pointer;
-      transition: background .15s ease, color .15s ease;
-    }
-
-    .history-item:hover,
-    .history-item.active {
-      background: rgba(183, 108, 255, .11);
-      border-color: var(--border);
-      color: var(--text);
-    }
-
-    .history-item-title {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
-      font-size: 13px;
-    }
-
-    .history-delete {
-      width: 25px;
-      height: 25px;
-      flex: 0 0 25px;
-      border: 0;
-      border-radius: 7px;
-      background: transparent;
-      color: var(--muted-2);
-      cursor: pointer;
-      opacity: 0;
-    }
-
-    .history-item:hover .history-delete,
-    .history-delete:focus-visible {
-      opacity: 1;
-    }
-
-    .history-delete:hover {
-      color: var(--danger);
-      background: rgba(255, 126, 154, .1);
-    }
-
-    .sidebar-spacer {
-      flex: 1;
-    }
-
-    .sidebar-footer {
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .account-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      min-width: 0;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, .025);
-    }
-
-    .avatar {
-      display: grid;
-      place-items: center;
-      width: 36px;
-      height: 36px;
-      flex: 0 0 36px;
-      border-radius: 50%;
-      color: white;
-      background: linear-gradient(135deg, #c17aff, #6d35b5);
-      font-weight: 800;
-    }
-
-    .account-meta {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .account-name {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .account-email {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      margin-top: 2px;
-      color: var(--muted-2);
-      font-size: 11px;
-    }
-
-    .subtle-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      min-height: 38px;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      background: rgba(255, 255, 255, .025);
-      color: var(--muted);
-      cursor: pointer;
-      transition: background .15s ease, color .15s ease, border-color .15s ease;
-    }
-
-    .subtle-button:hover {
-      background: rgba(183, 108, 255, .1);
-      color: var(--text);
-      border-color: var(--border-strong);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090611">
+<title>Void AI — Dein KI-Assistent</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#090611;--panel:#120b20;--purple:#a855f7;
+  --pink:#e879f9;--text:#faf7ff;--muted:#a99bbd;
+  --border:#ffffff16;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:Inter,system-ui,Arial,sans-serif;
+  background:radial-gradient(ellipse at 50% 0%,#5b218344,transparent 45%),var(--bg);
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer;color:inherit}
+button:disabled{opacity:.5;cursor:not-allowed}
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:265px;flex-shrink:0;padding:22px 16px;
+  display:flex;flex-direction:column;gap:20px;
+  background:#0b0713eF;border-right:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:22px;letter-spacing:2px}
+.orb{
+  width:42px;height:42px;flex-shrink:0;border-radius:50%;
+  background:radial-gradient(circle at 30% 25%,white,#e9d5ff 8%,#a855f7 30%,#4c1d95 65%,#10051d);
+  box-shadow:0 0 28px #a855f766,inset -7px -7px 12px #08020d;
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float{50%{transform:translateY(-5px);filter:brightness(1.25)}}
+.gradient{
+  background:linear-gradient(100deg,#fff,#d8b4fe,#e879f9);
+  color:transparent;background-clip:text;
+}
+.btn{
+  border:1px solid var(--border);border-radius:13px;padding:12px 15px;
+  background:#ffffff08;transition:.2s;
+}
+.btn:hover{background:#a855f725;border-color:#c084fc66}
+.primary{
+  border:0;background:linear-gradient(110deg,#9333ea,#c026d3);
+  color:white;font-weight:750;box-shadow:0 5px 25px #9333ea33;
+}
+.primary:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.newchat{width:100%;text-align:left}
+.section-label{font-size:11px;letter-spacing:2px;color:var(--muted);font-weight:800}
+.history{display:flex;flex-direction:column;gap:6px;overflow:auto}
+.history button{
+  text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border:1px solid transparent;border-radius:10px;padding:11px;
+  background:transparent;color:#d9cde8;
+}
+.history button:hover,.history button.active{background:#a855f71c;border-color:#a855f733}
+.sidebar-bottom{margin-top:auto;display:grid;gap:12px}
+.profile{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--border);border-radius:14px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#9333ea,#d946ef);font-weight:bold}
+.profile-info{min-width:0;flex:1}
+.profile-info strong,.profile-info small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-info small{color:var(--muted);margin-top:3px}
+.main{display:flex;flex:1;min-width:0;flex-direction:column;min-height:100vh}
+.topbar{
+  height:70px;padding:0 25px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);background:#090611bb;backdrop-filter:blur(18px);
+  position:sticky;top:0;z-index:2;
+}
+.topbar-title{font-weight:800;letter-spacing:1px}
+.status{font-size:12px;color:#d8b4fe}
+.status:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#c084fc;margin-right:8px;box-shadow:0 0 12px #c084fc}
+.welcome{width:100%;max-width:850px;margin:auto;padding:50px 24px;text-align:center}
+.hero-orb{width:120px;height:120px;margin:0 auto 30px;position:relative}
+.hero-orb .orb{width:100%;height:100%;box-shadow:0 0 70px #9333ea66,inset -15px -15px 22px #08020d}
+.ring{position:absolute;inset:-14px;border:1px solid #c084fc77;border-radius:50%;transform:rotateX(65deg) rotate(-20deg)}
+.ring.two{inset:-23px;transform:rotateX(65deg) rotate(50deg);border-color:#e879f955}
+.eyebrow{display:inline-block;padding:8px 14px;border:1px solid #a855f744;border-radius:50px;background:#a855f711;color:#e9d5ff;font-size:11px;letter-spacing:2px;font-weight:800}
+h1{font-size:clamp(32px,5vw,54px);line-height:1.12;letter-spacing:-1.8px;margin:22px 0 14px}
+.intro{color:var(--muted);line-height:1.8;max-width:540px;margin:0 auto 30px}
+.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;text-align:left}
+.suggestion{
+  padding:19px;background:linear-gradient(145deg,#1b1129,#100a19);
+  border:1px solid var(--border);border-radius:17px;text-align:left;
+}
+.suggestion:hover{border-color:#c084fc88;transform:translateY(-3px)}
+.suggestion b{display:block;margin:8px 0}
+.suggestion small{color:var(--muted)}
+.conversation{flex:1;min-height:0;width:100%;max-width:900px;margin:auto;padding:28px 24px 10px}
+.messages{display:flex;flex-direction:column;gap:24px}
+.message{display:flex;gap:13px;line-height:1.8;animation:appear .25s ease}
+@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.message-avatar{flex-shrink:0;width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#9333ea,#581c87);display:grid;place-items:center;font-size:12px;font-weight:bold}
+.message-body{flex:1;min-width:0}
+.message-name{font-size:13px;font-weight:800;margin-bottom:6px;color:#e9d5ff}
+.message-content{white-space:pre-wrap;overflow-wrap:anywhere;color:#eee7f7}
+.composer-area{width:100%;max-width:900px;margin:auto;padding:15px 24px 20px}
+.composer{padding:13px;background:#130c20;border:1px solid #a855f755;border-radius:20px;box-shadow:0 0 35px #9333ea14}
+textarea{width:100%;resize:none;max-height:180px;min-height:45px;border:0;outline:none;background:transparent;color:white;padding:8px}
+textarea::placeholder{color:#82738f}
+.composer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:8px}
+.composer-label{font-size:12px;color:var(--muted)}
+.send{width:43px;height:43px;padding:0;border-radius:13px;font-size:23px}
+.note{text-align:center;color:#82758f;font-size:11px;margin:12px 0 0}
+.modal-overlay{
+  position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;
+  padding:18px;background:#030107d9;backdrop-filter:blur(15px);
+}
+.modal{
+  position:relative;width:100%;max-width:430px;max-height:94vh;overflow:auto;
+  padding:30px;background:linear-gradient(145deg,#1b102a,#0d0817);
+  border:1px solid #c084fc44;border-radius:24px;
+  box-shadow:0 25px 100px #0009,0 0 45px #9333ea19;
+}
+.modal-orb{width:45px;height:45px;margin:0 auto 18px}
+.modal h2{text-align:center;font-size:27px;margin:0 0 10px}
+.modal-desc{text-align:center;color:var(--muted);line-height:1.6;font-size:14px;margin-bottom:22px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:5px;background:#08050f;border-radius:12px;margin-bottom:22px}
+.tabs button{border:0;background:transparent;padding:10px;border-radius:9px;color:var(--muted)}
+.tabs button.active{background:#9333ea30;color:#e9d5ff}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:13px;margin-bottom:7px;color:#e6d9f4}
+.field input{
+  width:100%;padding:13px 14px;border-radius:11px;
+  border:1px solid #ffffff1b;background:#08050f;color:white;outline:none;
+}
+.field input:focus{border-color:#c084fc;box-shadow:0 0 0 3px #a855f722}
+.field input:invalid:not(:placeholder-shown){border-color:#fb7185}
+.field-hint{font-size:12px;color:var(--muted);margin-top:7px}
+.error,.info{font-size:13px;line-height:1.5;padding:10px;border-radius:10px;margin:12px 0}
+.error{color:#fecdd3;background:#88133744;border:1px solid #fb718544}
+.info{color:#e9d5ff;background:#6b21a844;border:1px solid #c084fc44}
+.full{width:100%;margin-top:8px}
+.modal-close{position:absolute;right:15px;top:12px;border:0;background:transparent;color:#b9a7ce;font-size:25px}
+.link-btn{display:block;width:100%;border:0;background:transparent;color:#d8b4fe;padding:14px 0 0}
+.toast{
+  position:fixed;z-index:30;bottom:22px;left:50%;transform:translateX(-50%);
+  max-width:90%;padding:13px 18px;border:1px solid #c084fc55;
+  background:#1b102a;border-radius:12px;box-shadow:0 10px 35px #0006;
+}
+@media(max-width:760px){
+  .sidebar{width:220px;position:fixed;z-index:5;top:0;bottom:0;left:0;transform:translateX(-105%);transition:transform .25s}
+  .sidebar.open{transform:translateX(0)}
+  .topbar{padding:0 15px}
+  .welcome{padding:36px 18px}
+  .conversation{padding:20px 15px}
+  .composer-area{padding:12px 12px 16px}
+}
+@media(max-width:420px){
+  .suggestions{grid-template-columns:1fr}
+  .modal{padding:25px 19px}
+}
+</style>
 </head>
 <body>
-  <div class="app" id="app">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="brand">
-          <div class="brand-orb"></div>
-          <span>VOID AI</span>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="orb"></div><span class="gradient">VOID AI</span></div>
+    <button class="btn primary newchat" id="newChat">＋ Neuer Chat</button>
+    <div class="section-label">DEINE CHATS</div>
+    <div class="history" id="history"></div>
+    <div class="sidebar-bottom">
+      <button class="btn" id="settingsButton">⚙ Einstellungen / Konto</button>
+      <div class="profile">
+        <div class="avatar" id="avatar">V</div>
+        <div class="profile-info">
+          <strong id="profileName">Gast</strong>
+          <small id="profileEmail">Nicht angemeldet</small>
         </div>
-        <button class="icon-btn" id="closeSidebar" title="Menü schließen">✕</button>
       </div>
+      <button class="btn" id="loginButton">Anmelden / Registrieren</button>
+    </div>
+  </aside>
 
-      <button class="new-chat-btn" id="newChatBtn">
-        <span>＋</span> Neuer Chat
-      </button>
+  <main class="main">
+    <header class="topbar">
+      <button class="btn" id="menuButton" aria-label="Menü öffnen">☰</button>
+      <div class="topbar-title gradient">VOID AI</div>
+      <span class="status">Bereit</span>
+    </header>
 
-      <div class="sidebar-label">DEINE CHATS</div>
-      <div class="chat-history" id="chatHistory"></div>
+    <section class="welcome" id="welcome">
+      <div class="hero-orb">
+        <div class="orb"></div><div class="ring"></div><div class="ring two"></div>
+      </div>
+      <span class="eyebrow">DEIN KI-ASSISTENT</span>
+      <h1>Deine Ideen.<br><span class="gradient">Unendliche Möglichkeiten.</span></h1>
+      <p class="intro">Willkommen bei Void AI. Stell Fragen, entwickle Ideen und starte dein nächstes Projekt.</p>
+      <div class="suggestions">
+        <button class="suggestion" data-prompt="Erkläre mir etwas Spannendes über das Universum."><span>✦</span><b>Universum entdecken</b><small>Wissen, das begeistert</small></button>
+        <button class="suggestion" data-prompt="Hilf mir, eine moderne Website zu programmieren."><span>⌘</span><b>Programmieren</b><small>Mach deine Ideen real</small></button>
+        <button class="suggestion" data-prompt="Gib mir fünf kreative Ideen für ein Projekt."><span>◇</span><b>Kreative Ideen</b><small>Denke neu</small></button>
+        <button class="suggestion" data-prompt="Erkläre mir ein schwieriges Thema ganz einfach."><span>◎</span><b>Einfach lernen</b><small>Schritt für Schritt</small></button>
+      </div>
+    </section>
 
-      <div class="sidebar-bottom">
-        <button class="sidebar-action" id="settingsBtn">
-          <span>⚙</span> Einstellungen
-        </button>
-        <div class="user-card" id="userCard">
-          <div class="avatar" id="userAvatar">V</div>
-          <div class="user-info">
-            <div class="user-name" id="userName">Gast</div>
-            <div class="user-email" id="userEmail">Nicht angemeldet</div>
+    <section class="conversation" id="conversation" hidden>
+      <div class="messages" id="messages"></div>
+    </section>
+
+    <div class="composer-area">
+      <div class="composer">
+        <textarea id="prompt" rows="1" maxlength="12000" placeholder="Frag Void AI etwas …"></textarea>
+        <div class="composer-bottom">
+          <div>
+            <button class="btn" id="micButton" title="Spracheingabe">🎙 Mikrofon</button>
+            <span class="composer-label">　Void AI</span>
           </div>
-          <button class="icon-btn" id="accountMenuBtn" title="Konto">⋯</button>
+          <button class="btn primary send" id="sendButton" title="Senden">↑</button>
         </div>
       </div>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <button class="icon-btn" id="openSidebar" title="Menü">☰</button>
-        <div class="topbar-brand">
-          <div class="mini-orb"></div>
-          <span>Void AI</span>
-        </div>
-        <div class="topbar-actions">
-          <span class="status-dot"></span>
-          <span class="status-text">Bereit</span>
-        </div>
-      </header>
-
-      <section class="welcome-screen" id="welcomeScreen">
-        <div class="welcome-orb-wrap">
-          <div class="orb-glow"></div>
-          <div class="welcome-orb">
-            <div class="orb-core"></div>
-            <div class="orb-ring orb-ring-one"></div>
-            <div class="orb-ring orb-ring-two"></div>
-          </div>
-        </div>
-
-        <div class="welcome-badge">
-          <span class="status-dot"></span>
-          DEIN KI-ASSISTENT
-        </div>
-
-        <h1>Willkommen in der<br>
-          <span class="gradient-text">Leere des Möglichen.</span>
-        </h1>
-
-        <p class="welcome-description">
-          Ich bin Void AI. Frag mich etwas, entwickle Ideen
-          oder starte dein nächstes Projekt.
-        </p>
-
-        <div class="suggestion-grid">
-          <button class="suggestion-card" data-prompt="Erkläre mir etwas Interessantes über das Universum.">
-            <span class="suggestion-icon">✦</span>
-            <span class="suggestion-title">Das Universum</span>
-            <span class="suggestion-description">Entdecke etwas Neues</span>
-          </button>
-
-          <button class="suggestion-card" data-prompt="Hilf mir, eine coole Website zu programmieren.">
-            <span class="suggestion-icon">⌘</span>
-            <span class="suggestion-title">Programmieren</span>
-            <span class="suggestion-description">Erstelle etwas Eigenes</span>
-          </button>
-
-          <button class="suggestion-card" data-prompt="Gib mir fünf kreative Ideen für ein Projekt.">
-            <span class="suggestion-icon">◇</span>
-            <span class="suggestion-title">Neue Ideen</span>
-            <span class="suggestion-description">Denk anders</span>
-          </button>
-
-          <button class="suggestion-card" data-prompt="Erkläre mir ein schwieriges Thema ganz einfach.">
-            <span class="suggestion-icon">◎</span>
-            <span class="suggestion-title">Lernen</span>
-            <span class="suggestion-description">Verstehe mehr</span>
-          </button>
-        </div>
-      </section>
-
-      <section class="conversation" id="conversation" hidden>
-        <div class="messages" id="messages"></div>
-      </section>
-
-      <div class="composer-area">
-        <div class="composer" id="composer">
-          <textarea
-            id="messageInput"
-            placeholder="Frag Void AI etwas ..."
-            rows="1"
-            maxlength="12000"
-            aria-label="Deine Nachricht"
-          ></textarea>
-
-          <div class="composer-toolbar">
-            <div class="composer-tools">
-              <button class="tool-btn" id="micBtn" title="Spracheingabe">
-                <span id="micIcon">🎙</span>
-                <span id="micStatus" hidden>Spracherkennung aktiv</span>
-              </button>
-              <span class="tool-divider"></span>
-              <span class="model-label">
-                <span class="model-dot"></span>
-                Void AI
-              </span>
-            </div>
-
-            <button class="send-btn" id="sendBtn" title="Nachricht senden">
-              <span>↑</span>
-            </button>
-          </div>
-        </div>
-
-        <p class="disclaimer">
-          Void AI kann Fehler machen. Überprüfe wichtige Informationen.
-        </p>
-      </div>
-    </main>
-  </div>
-
-  <div class="toast-container" id="toastContainer"></div>
-
-  <div class="modal-overlay" id="authModal" hidden>
-    <div class="modal auth-modal">
-      <button class="modal-close" id="closeAuthModal" aria-label="Schließen">×</button>
-
-      <div class="modal-orb"></div>
-      <div class="modal-eyebrow">DEIN PERSÖNLICHER ASSISTENT</div>
-      <h2 id="authTitle">Erstelle dein Konto</h2>
-      <p class="modal-description" id="authDescription">
-        Registriere dich kostenlos und nutze Void AI.
-      </p>
-
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="registerTab">Registrieren</button>
-        <button class="auth-tab" id="loginTab">Anmelden</button>
-      </div>
-
-      <form id="authForm">
-        <label for="authName">Name</label>
-        <input
-          id="authName"
-          name="name"
-          type="text"
-          placeholder="Dein Name"
-          autocomplete="name"
-          maxlength="60"
-          required
-        >
-
-        <label for="authEmail">E-Mail-Adresse</label>
-        <input
-          id="authEmail"
-          name="email"
-          type="email"
-          placeholder="name@beispiel.de"
-          autocomplete="email"
-          required
-        >
-
-        <label for="authPassword">Passwort</label>
-        <input
-          id="authPassword"
-          name="password"
-          type="password"
-          placeholder="Mindestens 8 Zeichen"
-          autocomplete="new-password"
-          minlength="8"
-          required
-        >
-
-        <div id="confirmPasswordGroup">
-          <label for="authPasswordConfirm">Passwort bestätigen</label>
-          <input
-            id="authPasswordConfirm"
-            name="passwordConfirm"
-            type="password"
-            placeholder="Passwort wiederholen"
-            autocomplete="new-password"
-            minlength="8"
-            required
-          >
-        </div>
-
-        <div class="form-error" id="authError" role="alert" hidden></div>
-        <div class="form-info" id="authInfo" role="status" hidden></div>
-
-        <button class="primary-btn" id="authSubmit" type="submit">
-          Konto erstellen
-        </button>
-      </form>
-
-      <p class="auth-legal">
-        Mit der Registrierung stimmst du der verantwortungsvollen Nutzung
-        von Void AI zu.
-      </p>
+      <p class="note">KI-Antworten können Fehler enthalten. Überprüfe wichtige Informationen.</p>
     </div>
-  </div>
+  </main>
+</div>
 
-  <div class="modal-overlay" id="verifyModal" hidden>
-    <div class="modal verify-modal">
-      <div class="verify-icon">✉</div>
-      <div class="modal-eyebrow">FAST GESCHAFFT</div>
-      <h2>Bestätige deine E-Mail</h2>
-      <p class="modal-description">
-        Wir haben eine Bestätigungsnachricht angefordert.
-        Öffne den Link in der E-Mail, um dein Konto zu bestätigen.
-      </p>
-
-      <div class="email-preview" id="verifyEmailPreview"></div>
-
-      <div class="verify-hint">
-        <strong>Keine E-Mail erhalten?</strong>
-        <p>Prüfe deinen Spam-Ordner. Es kann einige Minuten dauern.</p>
-      </div>
-
-      <div class="form-error" id="verifyError" role="alert" hidden></div>
-      <div class="form-info" id="verifyInfo" role="status" hidden></div>
-
-      <button class="primary-btn" id="resendVerificationBtn" type="button">
-        Bestätigungs-E-Mail erneut senden
-      </button>
-
-      <button class="secondary-btn" id="backToAuthBtn" type="button">
-        Zurück zur Anmeldung
-      </button>
+<div class="modal-overlay" id="authOverlay">
+  <div class="modal">
+    <button class="modal-close" id="closeAuth" aria-label="Schließen">×</button>
+    <div class="modal-orb orb"></div>
+    <h2 id="authTitle">Willkommen bei <span class="gradient">Void AI</span></h2>
+    <p class="modal-desc" id="authDesc">Erstelle dein kostenloses Konto.</p>
+    <div class="tabs">
+      <button id="registerTab" class="active">Registrieren</button>
+      <button id="loginTab">Anmelden</button>
     </div>
+    <form id="authForm">
+      <div class="field" id="nameGroup">
+        <label for="name">Name</label>
+        <input id="name" autocomplete="name" maxlength="60" placeholder="Dein Name" required>
+      </div>
+      <div class="field">
+        <label for="email">E-Mail-Adresse</label>
+        <input id="email" type="email" autocomplete="email" placeholder="name@beispiel.de" required>
+      </div>
+      <div class="field">
+        <label for="password">Passwort</label>
+        <input id="password" type="password" autocomplete="new-password" minlength="8" placeholder="Mindestens 8 Zeichen" required>
+      </div>
+      <div class="field" id="confirmGroup">
+        <label for="passwordConfirm">Passwort bestätigen</label>
+        <input id="passwordConfirm" type="password" autocomplete="new-password" minlength="8" placeholder="Passwort erneut eingeben" required>
+        <div class="field-hint" id="passwordHint">Beide Passwörter müssen identisch sein.</div>
+      </div>
+      <div id="authError" class="error" hidden role="alert"></div>
+      <div id="authInfo" class="info" hidden role="status"></div>
+      <button class="btn primary full" id="authSubmit" type="submit">Konto erstellen</button>
+    </form>
+    <button class="link-btn" id="resendEmail" hidden>Bestätigungs-E-Mail erneut senden</button>
   </div>
+</div>
 
-  <div class="modal-overlay" id="settingsModal" hidden>
-    <div class="modal settings-modal">
-      <button class="modal-close" id="closeSettingsModal" aria-label="Schließen">×</button>
-      <div class="modal-eyebrow">PERSONALISIERUNG</div>
-      <h2>Einstellungen</h2>
-      <p class="modal-description">Passe Void AI an deine Wünsche an.</p>
+<div class="toast" id="toast" hidden></div>
 
-      <div class="setting-row">
-        <div>
-          <strong>Sprache</strong>
-          <p>Sprache der Spracheingabe</p>
-        </div>
-        <select id="speechLanguage">
-          <option value="de-DE">Deutsch</option>
-          <option value="en-US">English</option>
-        </select>
-      </div>
+<script>
+"use strict";
 
-      <div class="setting-row">
-        <div>
-          <strong>Chatverlauf</strong>
-          <p>Gespeicherte Chats auf diesem Gerät löschen</p>
-        </div>
-        <button class="danger-btn" id="clearHistoryBtn">Löschen</button>
-      </div>
+/* =========================================================
+   KONFIGURATION — DEINE SUPABASE-DATEN
+   ========================================================= */
+const CONFIG = {
+  SUPABASE_URL: "https://onewdrztvuffzxdnqmvi.supabase.co",
+  SUPABASE_KEY: "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA",
+  AI_ENDPOINT: "https://void-ai-api.cguerpinar.workers.dev/"
+};
 
-      <div class="setting-row">
-        <div>
-          <strong>Konto</strong>
-          <p id="settingsAccountEmail">Nicht angemeldet</p>
-        </div>
-        <button class="secondary-btn small-btn" id="logoutBtn">Abmelden</button>
-      </div>
-    </div>
-  </div>
+const $ = id => document.getElementById(id);
+const ui = {
+  sidebar:$("sidebar"),history:$("history"),welcome:$("welcome"),
+  conversation:$("conversation"),messages:$("messages"),prompt:$("prompt"),
+  send:$("sendButton"),authOverlay:$("authOverlay"),authForm:$("authForm"),
+  name:$("name"),email:$("email"),password:$("password"),
+  confirm:$("passwordConfirm"),nameGroup:$("nameGroup"),
+  confirmGroup:$("confirmGroup"),passwordHint:$("passwordHint"),
+  authTitle:$("authTitle"),authDesc:$("authDesc"),authSubmit:$("authSubmit"),
+  authError:$("authError"),authInfo:$("authInfo"),registerTab:$("registerTab"),
+  loginTab:$("loginTab"),resend:$("resendEmail"),toast:$("toast")
+};
 
-  <div class="modal-overlay" id="confirmModal" hidden>
-    <div class="modal confirm-modal">
-      <h2 id="confirmTitle">Bist du sicher?</h2>
-      <p class="modal-description" id="confirmMessage"></p>
-      <div class="confirm-actions">
-        <button class="secondary-btn" id="confirmCancel">Abbrechen</button>
-        <button class="danger-btn" id="confirmAccept">Bestätigen</button>
-      </div>
-    </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-  "use strict";
+let supabaseClient = null;
+let user = null;
+let registerMode = true;
+let chats = [];
+let currentChatId = null;
+let busy = false;
+let recognition = null;
+let pendingEmail = "";
+let toastTimer = null;
 
-  // =========================================================
-  // VOID AI – KONFIGURATION
-  // =========================================================
+const CHAT_KEY = "void_ai_chats_v4";
 
-  const CONFIG = {
-    SUPABASE_URL: "https://onewdrztvuffzxdnqmvi.supabase.co",
-    SUPABASE_KEY: "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA",
-    AI_ENDPOINT: "https://void-ai-api.cguerpinar.workers.dev/",
-    REDIRECT_URL: window.location.origin + window.location.pathname
-  };
+function toast(message) {
+  ui.toast.textContent = message;
+  ui.toast.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => ui.toast.hidden = true, 3500);
+}
 
-  // =========================================================
-  // ELEMENTE
-  // =========================================================
+function showError(message) {
+  ui.authError.textContent = message;
+  ui.authError.hidden = false;
+  ui.authInfo.hidden = true;
+}
 
-  const $ = id => document.getElementById(id);
+function showInfo(message) {
+  ui.authInfo.textContent = message;
+  ui.authInfo.hidden = false;
+  ui.authError.hidden = true;
+}
 
-  const elements = {
-    authModal: $("authModal"),
-    authForm: $("authForm"),
-    authName: $("authName"),
-    authEmail: $("authEmail"),
-    authPassword: $("authPassword"),
-    authPasswordConfirm: $("authPasswordConfirm"),
-    authTitle: $("authTitle"),
-    authDescription: $("authDescription"),
-    authSubmit: $("authSubmit"),
-    authError: $("authError"),
-    authInfo: $("authInfo"),
-    registerTab: $("registerTab"),
-    loginTab: $("loginTab"),
-    confirmPasswordGroup: $("confirmPasswordGroup"),
-    verifyModal: $("verifyModal"),
-    verifyEmailPreview: $("verifyEmailPreview"),
-    verifyError: $("verifyError"),
-    verifyInfo: $("verifyInfo"),
-    resendVerificationBtn: $("resendVerificationBtn"),
-    backToAuthBtn: $("backToAuthBtn"),
-    closeAuthModal: $("closeAuthModal"),
-    closeSidebar: $("closeSidebar"),
-    openSidebar: $("openSidebar"),
-    sidebar: $("sidebar"),
-    newChatBtn: $("newChatBtn"),
-    chatHistory: $("chatHistory"),
-    welcomeScreen: $("welcomeScreen"),
-    conversation: $("conversation"),
-    messages: $("messages"),
-    messageInput: $("messageInput"),
-    sendBtn: $("sendBtn"),
-    micBtn: $("micBtn"),
-    micIcon: $("micIcon"),
-    micStatus: $("micStatus"),
-    userName: $("userName"),
-    userEmail: $("userEmail"),
-    userAvatar: $("userAvatar"),
-    userCard: $("userCard"),
-    accountMenuBtn: $("accountMenuBtn"),
-    settingsBtn: $("settingsBtn"),
-    settingsModal: $("settingsModal"),
-    closeSettingsModal: $("closeSettingsModal"),
-    settingsAccountEmail: $("settingsAccountEmail"),
-    logoutBtn: $("logoutBtn"),
-    clearHistoryBtn: $("clearHistoryBtn"),
-    speechLanguage: $("speechLanguage"),
-    confirmModal: $("confirmModal"),
-    confirmTitle: $("confirmTitle"),
-    confirmMessage: $("confirmMessage"),
-    confirmCancel: $("confirmCancel"),
-    confirmAccept: $("confirmAccept"),
-    toastContainer: $("toastContainer")
-  };
+function clearAuthMessages() {
+  ui.authError.hidden = true;
+  ui.authInfo.hidden = true;
+  ui.resend.hidden = true;
+}
 
-  // =========================================================
-  // ANWENDUNGSZUSTAND
-  // =========================================================
+function setMode(register) {
+  registerMode = register;
+  ui.registerTab.classList.toggle("active", register);
+  ui.loginTab.classList.toggle("active", !register);
+  ui.nameGroup.hidden = !register;
+  ui.confirmGroup.hidden = !register;
+  ui.name.required = register;
+  ui.confirm.required = register;
+  ui.password.autocomplete = register ? "new-password" : "current-password";
+  ui.authTitle.innerHTML = register
+    ? 'Willkommen bei <span class="gradient">Void AI</span>'
+    : 'Schön, dass du <span class="gradient">zurück bist</span>';
+  ui.authDesc.textContent = register
+    ? "Erstelle dein kostenloses Konto."
+    : "Melde dich mit deinen Kontodaten an.";
+  ui.authSubmit.textContent = register ? "Konto erstellen" : "Anmelden";
+  clearAuthMessages();
+  checkPasswords(false);
+}
 
-  let supabaseClient = null;
-  let currentUser = null;
-  let currentChatId = null;
-  let chats = [];
-  let isSending = false;
-  let isRegisterMode = true;
-  let pendingVerificationEmail = "";
-  let speechRecognition = null;
-  let isListening = false;
-  let confirmationCallback = null;
+/* PASSWORTPRÜFUNG */
+function checkPasswords(showMessage = true) {
+  ui.confirm.setCustomValidity("");
 
-  const STORAGE_KEY = "void_ai_chats_v3";
-  const USER_SETTINGS_KEY = "void_ai_settings_v1";
-
-  // =========================================================
-  // HILFSFUNKTIONEN
-  // =========================================================
-
-  function showElement(element) {
-    if (element) element.hidden = false;
+  if (!registerMode || !ui.confirm.value) {
+    ui.passwordHint.textContent = "Beide Passwörter müssen identisch sein.";
+    ui.passwordHint.style.color = "";
+    return true;
   }
 
-  function hideElement(element) {
-    if (element) element.hidden = true;
+  if (ui.password.value !== ui.confirm.value) {
+    const message = "Die beiden Passwörter stimmen nicht überein.";
+    ui.confirm.setCustomValidity(message);
+    ui.passwordHint.textContent = "✖ Passwörter stimmen nicht überein.";
+    ui.passwordHint.style.color = "#fda4af";
+    if (showMessage) {
+      ui.authError.textContent = message;
+      ui.authError.hidden = false;
+    }
+    return false;
   }
 
-  function showMessage(element, message) {
-    if (!element) return;
-    element.textContent = message;
-    showElement(element);
+  ui.passwordHint.textContent = "✓ Beide Passwörter stimmen überein.";
+  ui.passwordHint.style.color = "#86efac";
+  ui.authError.hidden = true;
+  return true;
+}
+
+ui.password.addEventListener("input", () => checkPasswords());
+ui.confirm.addEventListener("input", () => checkPasswords());
+
+function openAuth(mode = "register") {
+  setMode(mode === "register");
+  ui.authOverlay.hidden = false;
+}
+
+function closeAuth() {
+  if (user) ui.authOverlay.hidden = true;
+}
+
+function initSupabase() {
+  if (!window.supabase?.createClient) {
+    toast("Supabase konnte nicht geladen werden.");
+    return false;
+  }
+  try {
+    supabaseClient = window.supabase.createClient(
+      CONFIG.SUPABASE_URL,
+      CONFIG.SUPABASE_KEY,
+      {
+        auth:{
+          persistSession:true,
+          autoRefreshToken:true,
+          detectSessionInUrl:true
+        }
+      }
+    );
+    return true;
+  } catch (error) {
+    console.error(error);
+    toast("Supabase-Verbindung fehlgeschlagen.");
+    return false;
+  }
+}
+
+async function register() {
+  const name = ui.name.value.trim();
+  const email = ui.email.value.trim();
+  const password = ui.password.value;
+  const confirmation = ui.confirm.value;
+
+  if (name.length < 2) {
+    showError("Bitte gib deinen Namen ein.");
+    ui.name.focus();
+    return;
+  }
+  if (password.length < 8) {
+    showError("Das Passwort muss mindestens 8 Zeichen haben.");
+    ui.password.focus();
+    return;
+  }
+  if (password !== confirmation) {
+    checkPasswords();
+    ui.confirm.reportValidity();
+    ui.confirm.focus();
+    return;
   }
 
-  function clearMessage(element) {
-    if (!element) return;
-    element.textContent = "";
-    hideElement(element);
-  }
+  clearAuthMessages();
+  ui.authSubmit.disabled = true;
+  ui.authSubmit.textContent = "Konto wird erstellt …";
 
-  function showToast(message, duration = 3500) {
-    if (!elements.toastContainer) return;
+  try {
+    const {data,error} = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options:{
+        data:{name,display_name:name},
+        emailRedirectTo:window.location.origin + window.location.pathname
+      }
+    });
 
-    const toast = document.createElement("div");
-    toast.className = "toast";
-    toast.textContent = String(message);
-    elements.toastContainer.appendChild(toast);
+    if (error) throw error;
 
-    window.setTimeout(() => {
-      toast.classList.add("toast-out");
-      window.setTimeout(() => toast.remove(), 300);
-    }, duration);
-  }
+    pendingEmail = email;
 
-  function setButtonLoading(button, loading, loadingText = "Bitte warten …") {
-    if (!button) return;
-
-    if (loading) {
-      button.dataset.originalText = button.textContent;
-      button.textContent = loadingText;
-      button.disabled = true;
+    if (data.session && data.user) {
+      user = data.user;
+      ui.authOverlay.hidden = true;
+      updateProfile();
+      loadChats();
+      renderHistory();
+      toast("Konto erstellt. Willkommen bei Void AI!");
     } else {
-      button.textContent =
-        button.dataset.originalText || button.textContent;
-      button.disabled = false;
-      delete button.dataset.originalText;
+      showInfo("Konto erstellt. Falls E-Mail-Bestätigung aktiviert ist, prüfe dein Postfach und den Spam-Ordner.");
+      ui.resend.hidden = false;
     }
+  } catch (error) {
+    console.error("Registrierungsfehler:",error);
+    let message = error.message || "Registrierung fehlgeschlagen.";
+    if (/already registered|already exists/i.test(message)) {
+      message = "Diese E-Mail ist möglicherweise bereits registriert. Versuche die Anmeldung.";
+    } else if (/rate limit/i.test(message)) {
+      message = "Zu viele Versuche. Bitte warte kurz.";
+    }
+    showError(message);
+  } finally {
+    ui.authSubmit.disabled = false;
+    ui.authSubmit.textContent = "Konto erstellen";
+  }
+}
+
+async function login() {
+  const email = ui.email.value.trim();
+  const password = ui.password.value;
+
+  if (!email || !password) {
+    showError("Bitte E-Mail-Adresse und Passwort eingeben.");
+    return;
   }
 
-  function escapeHTML(value) {
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function getDisplayName(user) {
-    return (
-      user?.user_metadata?.display_name ||
-      user?.user_metadata?.name ||
-      user?.email?.split("@")[0] ||
-      "Void-Nutzer"
-    );
-  }
-
-  function openModal(modal) {
-    if (!modal) return;
-    showElement(modal);
-    document.body.classList.add("modal-open");
-  }
-
-  function closeModal(modal) {
-    if (!modal) return;
-    hideElement(modal);
-
-    const anotherModalOpen = [
-      elements.authModal,
-      elements.verifyModal,
-      elements.settingsModal,
-      elements.confirmModal
-    ].some(item => item && !item.hidden);
-
-    if (!anotherModalOpen) {
-      document.body.classList.remove("modal-open");
-    }
-  }
-
-  function openAuthModal(mode = "register") {
-    setAuthMode(mode);
-    clearMessage(elements.authError);
-    clearMessage(elements.authInfo);
-    openModal(elements.authModal);
-  }
-
-  function setAuthMode(mode) {
-    isRegisterMode = mode === "register";
-
-    elements.registerTab?.classList.toggle("active", isRegisterMode);
-    elements.loginTab?.classList.toggle("active", !isRegisterMode);
-
-    if (elements.authTitle) {
-      elements.authTitle.textContent = isRegisterMode
-        ? "Erstelle dein Konto"
-        : "Willkommen zurück";
-    }
-
-    if (elements.authDescription) {
-      elements.authDescription.textContent = isRegisterMode
-        ? "Registriere dich kostenlos und nutze Void AI."
-        : "Melde dich mit deiner E-Mail-Adresse an.";
-    }
-
-    if (elements.authSubmit) {
-      elements.authSubmit.textContent = isRegisterMode
-        ? "Konto erstellen"
-        : "Anmelden";
-    }
-
-    if (elements.authName) {
-      elements.authName.required = isRegisterMode;
-    }
-
-    if (elements.authPasswordConfirm) {
-      elements.authPasswordConfirm.required = isRegisterMode;
-    }
-
-    if (elements.confirmPasswordGroup) {
-      elements.confirmPasswordGroup.hidden = !isRegisterMode;
-    }
-
-    if (elements.authPassword) {
-      elements.authPassword.autocomplete = isRegisterMode
-        ? "new-password"
-        : "current-password";
-    }
-
-    if (elements.authPasswordConfirm) {
-      elements.authPasswordConfirm.value = "";
-    }
-
-    clearMessage(elements.authError);
-    clearMessage(elements.authInfo);
-  }
-
-  // =========================================================
-  // SUPABASE INITIALISIEREN
-  // =========================================================
-
-  function initializeSupabase() {
-    if (!window.supabase?.createClient) {
-      showToast("Supabase konnte nicht geladen werden.");
-      return false;
-    }
-
-    try {
-      supabaseClient = window.supabase.createClient(
-        CONFIG.SUPABASE_URL,
-        CONFIG.SUPABASE_KEY,
-        {
-          auth: {
-            autoRefreshToken: true,
-            persistSession: true,
-            detectSessionInUrl: true,
-            flowType: "pkce"
-          }
-        }
-      );
-
-      return true;
-    } catch (error) {
-      console.error("Supabase-Initialisierung fehlgeschlagen:", error);
-      showToast("Verbindung zu Supabase fehlgeschlagen.");
-      return false;
-    }
-  }
-
-  // =========================================================
-  // REGISTRIERUNG UND E-MAIL-BESTÄTIGUNG
-  // =========================================================
-
-  async function registerUser() {
-    const name = elements.authName.value.trim();
-    const email = elements.authEmail.value.trim();
-    const password = elements.authPassword.value;
-    const passwordConfirm = elements.authPasswordConfirm.value;
-
-    if (name.length < 2) {
-      showMessage(elements.authError, "Bitte gib deinen Namen ein.");
-      return;
-    }
-
-    if (!email || !elements.authEmail.checkValidity()) {
-      showMessage(
-        elements.authError,
-        "Bitte gib eine gültige E-Mail-Adresse ein."
-      );
-      return;
-    }
-
-    if (password.length < 8) {
-      showMessage(
-        elements.authError,
-        "Dein Passwort muss mindestens 8 Zeichen haben."
-      );
-      return;
-    }
-
-    if (password !== passwordConfirm) {
-      showMessage(
-        elements.authError,
-        "Die beiden Passwörter stimmen nicht überein."
-      );
-      return;
-    }
-
-    clearMessage(elements.authError);
-    clearMessage(elements.authInfo);
-    setButtonLoading(elements.authSubmit, true, "Konto wird erstellt …");
-
-    try {
-      const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            display_name: name,
-            name: name
-          },
-          emailRedirectTo: CONFIG.REDIRECT_URL
-        }
-      });
-
-      if (error) throw error;
-
-      pendingVerificationEmail = email;
-      elements.verifyEmailPreview.textContent = email;
-
-      closeModal(elements.authModal);
-
-      if (data.session && data.user) {
-        currentUser = data.user;
-        await enterApp(data.user);
-        showToast("Dein Konto wurde erstellt!");
-      } else {
-        openModal(elements.verifyModal);
-        showToast("Prüfe dein E-Mail-Postfach.");
-      }
-    } catch (error) {
-      console.error("Registrierungsfehler:", error);
-
-      let message = error.message || "Registrierung fehlgeschlagen.";
-
-      if (/already registered|already exists/i.test(message)) {
-        message =
-          "Für diese E-Mail besteht möglicherweise bereits ein Konto. " +
-          "Versuche, dich anzumelden.";
-      } else if (/rate limit/i.test(message)) {
-        message =
-          "Zu viele Versuche. Warte bitte etwas und versuche es erneut.";
-      } else if (/password/i.test(message)) {
-        message =
-          "Das Passwort wurde nicht akzeptiert. Prüfe die Passwortregeln.";
-      }
-
-      showMessage(elements.authError, message);
-    } finally {
-      setButtonLoading(elements.authSubmit, false);
-    }
-  }
-
-  async function loginUser() {
-    const email = elements.authEmail.value.trim();
-    const password = elements.authPassword.value;
-
-    if (!email || !password) {
-      showMessage(
-        elements.authError,
-        "Gib deine E-Mail-Adresse und dein Passwort ein."
-      );
-      return;
-    }
-
-    clearMessage(elements.authError);
-    clearMessage(elements.authInfo);
-    setButtonLoading(elements.authSubmit, true, "Anmeldung läuft …");
-
-    try {
-      const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
-      if (error) {
-        if (/email not confirmed/i.test(error.message)) {
-          pendingVerificationEmail = email;
-          elements.verifyEmailPreview.textContent = email;
-          closeModal(elements.authModal);
-          openModal(elements.verifyModal);
-          showMessage(
-            elements.verifyInfo,
-            "Bitte bestätige zuerst deine E-Mail-Adresse."
-          );
-          return;
-        }
-
-        throw error;
-      }
-
-      closeModal(elements.authModal);
-
-      if (data.user) {
-        currentUser = data.user;
-        await enterApp(data.user);
-        showToast("Du bist angemeldet!");
-      }
-    } catch (error) {
-      console.error("Anmeldefehler:", error);
-
-      showMessage(
-        elements.authError,
-        "Anmeldung fehlgeschlagen. Prüfe E-Mail und Passwort."
-      );
-    } finally {
-      setButtonLoading(elements.authSubmit, false);
-    }
-  }
-
-  async function resendVerificationEmail() {
-    if (!pendingVerificationEmail) {
-      showMessage(
-        elements.verifyError,
-        "Gib zuerst deine E-Mail-Adresse ein."
-      );
-      return;
-    }
-
-    clearMessage(elements.verifyError);
-    clearMessage(elements.verifyInfo);
-
-    setButtonLoading(
-      elements.resendVerificationBtn,
-      true,
-      "Wird gesendet …"
-    );
-
-    try {
-      const { error } = await supabaseClient.auth.resend({
-        type: "signup",
-        email: pendingVerificationEmail,
-        options: {
-          emailRedirectTo: CONFIG.REDIRECT_URL
-        }
-      });
-
-      if (error) throw error;
-
-      showMessage(
-        elements.verifyInfo,
-        "Die Anfrage wurde gesendet. Prüfe deinen Posteingang und Spam-Ordner."
-      );
-    } catch (error) {
-      console.error("Fehler beim erneuten Senden:", error);
-
-      showMessage(
-        elements.verifyError,
-        "Die E-Mail konnte nicht erneut angefordert werden. " +
-        "Warte etwas und versuche es später noch einmal."
-      );
-    } finally {
-      setButtonLoading(elements.resendVerificationBtn, false);
-    }
-  }
-
-  // =========================================================
-  // BENUTZEROBERFLÄCHE NACH DER ANMELDUNG
-  // =========================================================
-
-  async function enterApp(user) {
-    currentUser = user;
-
-    const name = getDisplayName(user);
-
-    if (elements.userName) {
-      elements.userName.textContent = name;
-    }
-
-    if (elements.userEmail) {
-      elements.userEmail.textContent = user.email || "";
-    }
-
-    if (elements.userAvatar) {
-      elements.userAvatar.textContent =
-        name.charAt(0).toUpperCase();
-    }
-
-    if (elements.settingsAccountEmail) {
-      elements.settingsAccountEmail.textContent =
-        user.email || "Keine E-Mail-Adresse";
-    }
-
-    closeModal(elements.authModal);
-    closeModal(elements.verifyModal);
-
-    loadChats();
-    renderChatHistory();
-
-    showToast("Willkommen bei Void AI!");
-  }
-
-  async function logoutUser() {
-    if (!supabaseClient) return;
-
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-      console.error("Abmeldefehler:", error);
-      showToast("Abmelden fehlgeschlagen.");
-      return;
-    }
-
-    currentUser = null;
-    currentChatId = null;
-    chats = [];
-
-    if (elements.userName) elements.userName.textContent = "Gast";
-    if (elements.userEmail) {
-      elements.userEmail.textContent = "Nicht angemeldet";
-    }
-
-    if (elements.userAvatar) elements.userAvatar.textContent = "V";
-
-    renderChatHistory();
-    showWelcomeScreen();
-    closeModal(elements.settingsModal);
-    openAuthModal("login");
-  }
-
-  // =========================================================
-  // CHATVERLAUF SPEICHERN
-  // =========================================================
-
-  function loadChats() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const parsed = stored ? JSON.parse(stored) : [];
-
-      chats = Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      console.warn("Chatverlauf konnte nicht gelesen werden:", error);
-      chats = [];
-    }
-  }
-
-  function saveChats() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
-    } catch (error) {
-      console.warn("Chatverlauf konnte nicht gespeichert werden:", error);
-      showToast("Chatverlauf konnte nicht gespeichert werden.");
-    }
-  }
-
-  function createNewChat() {
-    const chat = {
-      id: crypto.randomUUID
-        ? crypto.randomUUID()
-        : String(Date.now()) + Math.random().toString(36).slice(2),
-      title: "Neuer Chat",
-      messages: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    chats.unshift(chat);
-    currentChatId = chat.id;
-
-    saveChats();
-    renderChatHistory();
-    renderMessages();
-    showConversation();
-
-    elements.messageInput?.focus();
-  }
-
-  function getCurrentChat() {
-    return chats.find(chat => chat.id === currentChatId) || null;
-  }
-
-  function renderChatHistory() {
-    if (!elements.chatHistory) return;
-
-    elements.chatHistory.replaceChildren();
-
-    chats.forEach(chat => {
-      const item = document.createElement("button");
-      item.className = "history-item";
-
-      if (chat.id === currentChatId) {
-        item.classList.add("active");
-      }
-
-      const icon = document.createElement("span");
-      icon.className = "history-icon";
-      icon.textContent = "▱";
-
-      const title = document.createElement("span");
-      title.className = "history-title";
-      title.textContent = chat.title || "Neuer Chat";
-
-      item.append(icon, title);
-
-      item.addEventListener("click", () => {
-        currentChatId = chat.id;
-        renderChatHistory();
-        renderMessages();
-        showConversation();
-
-        if (window.innerWidth < 760) {
-          elements.sidebar?.classList.remove("sidebar-open");
-        }
-      });
-
-      elements.chatHistory.appendChild(item);
-    });
-  }
-
-  function showWelcomeScreen() {
-    showElement(elements.welcomeScreen);
-    hideElement(elements.conversation);
-  }
-
-  function showConversation() {
-    hideElement(elements.welcomeScreen);
-    showElement(elements.conversation);
-  }
-
-  // =========================================================
-  // NACHRICHTEN DARSTELLEN
-  // =========================================================
-
-  function renderMessages() {
-    if (!elements.messages) return;
-
-    elements.messages.replaceChildren();
-
-    const chat = getCurrentChat();
-
-    if (!chat || !chat.messages.length) {
-      showWelcomeScreen();
-      return;
-    }
-
-    chat.messages.forEach(message => {
-      appendMessageToDOM(message.role, message.content);
-    });
-
-    showConversation();
-    scrollToBottom();
-  }
-
-  function appendMessageToDOM(role, content) {
-    const wrapper = document.createElement("article");
-    wrapper.className = "message message-" + role;
-
-    const avatar = document.createElement("div");
-    avatar.className = "message-avatar";
-    avatar.textContent = role === "user" ? "Du" : "V";
-
-    const body = document.createElement("div");
-    body.className = "message-body";
-
-    const heading = document.createElement("div");
-    heading.className = "message-heading";
-    heading.textContent = role === "user" ? "Du" : "Void AI";
-
-    const text = document.createElement("div");
-    text.className = "message-content";
-    text.textContent = content;
-
-    body.append(heading, text);
-    wrapper.append(avatar, body);
-    elements.messages.appendChild(wrapper);
-
-    return wrapper;
-  }
-
-  function scrollToBottom() {
-    if (!elements.messages) return;
-
-    requestAnimationFrame(() => {
-      elements.messages.scrollTop = elements.messages.scrollHeight;
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: "smooth"
-      });
-    });
-  }
-
-  function setChatTitle(chat, firstMessage) {
-    if (!chat || chat.title !== "Neuer Chat") return;
-
-    const clean = firstMessage.trim().replace(/\s+/g, " ");
-    chat.title = clean.length > 32
-      ? clean.slice(0, 32) + "…"
-      : clean || "Neuer Chat";
-
-    renderChatHistory();
-  }
-
-  // =========================================================
-  // TEIL 3 ENDE
-  // =========================================================
-  </script>
-<script>
-  // =========================================================
-  // KI-NACHRICHTEN SENDEN
-  // =========================================================
-
-  async function sendMessage(text) {
-    const message = String(text || "").trim();
-
-    if (!message || isSending) return;
-
-    if (!currentUser) {
-      showToast("Bitte melde dich zuerst an.");
-      openAuthModal("login");
-      return;
-    }
-
-    if (!currentChatId || !getCurrentChat()) {
-      createNewChat();
-    }
-
-    const chat = getCurrentChat();
-    if (!chat) {
-      showToast("Der Chat konnte nicht erstellt werden.");
-      return;
-    }
-
-    isSending = true;
-    elements.sendBtn.disabled = true;
-    elements.messageInput.disabled = true;
-
-    chat.messages.push({
-      role: "user",
-      content: message,
-      createdAt: new Date().toISOString()
-    });
-
-    setChatTitle(chat, message);
-    chat.updatedAt = new Date().toISOString();
-    saveChats();
-    renderMessages();
-    renderChatHistory();
-
-    elements.messageInput.value = "";
-    elements.messageInput.style.height = "auto";
-
-    const assistantMessage = appendMessageToDOM("assistant", "Void AI denkt nach …");
-    assistantMessage.classList.add("message-loading");
-
-    try {
-      const response = await fetch(CONFIG.AI_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message,
-          messages: chat.messages
-            .filter(item => item.role === "user" || item.role === "assistant")
-            .slice(-20)
-            .map(item => ({
-              role: item.role,
-              content: item.content
-            }))
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error("KI-Server antwortet mit HTTP " + response.status);
-      }
-
-      const data = await response.json();
-
-      const answer =
-        data.reply ||
-        data.response ||
-        data.answer ||
-        data.message ||
-        data.content;
-
-      if (typeof answer !== "string" || !answer.trim()) {
-        throw new Error("Der KI-Server hat keine Antwort geliefert.");
-      }
-
-      const finalAnswer = answer.trim();
-
-      chat.messages.push({
-        role: "assistant",
-        content: finalAnswer,
-        createdAt: new Date().toISOString()
-      });
-
-      chat.updatedAt = new Date().toISOString();
-      saveChats();
-
-      renderMessages();
-      renderChatHistory();
-    } catch (error) {
-      console.error("Fehler bei der KI-Anfrage:", error);
-
-      const errorText =
-        "Entschuldigung, ich konnte gerade keine Antwort erhalten. " +
-        "Prüfe deine Internetverbindung und versuche es erneut.";
-
-      chat.messages.push({
-        role: "assistant",
-        content: errorText,
-        createdAt: new Date().toISOString()
-      });
-
-      saveChats();
-      renderMessages();
-
-      showToast("Die Verbindung zu Void AI ist fehlgeschlagen.");
-    } finally {
-      isSending = false;
-      elements.sendBtn.disabled = false;
-      elements.messageInput.disabled = false;
-      elements.messageInput.focus();
-    }
-  }
-
-  // =========================================================
-  // MIKROFON UND SPRACHEINGABE
-  // =========================================================
-
-  function initializeSpeechRecognition() {
-    const SpeechRecognitionAPI =
-      window.SpeechRecognition ||
-      window.webkitSpeechRecognition;
-
-    if (!SpeechRecognitionAPI) {
-      elements.micBtn.disabled = true;
-      elements.micBtn.title =
-        "Spracheingabe wird von diesem Browser nicht unterstützt.";
-      return;
-    }
-
-    speechRecognition = new SpeechRecognitionAPI();
-    speechRecognition.lang = "de-DE";
-    speechRecognition.continuous = false;
-    speechRecognition.interimResults = true;
-    speechRecognition.maxAlternatives = 1;
-
-    speechRecognition.onstart = () => {
-      isListening = true;
-      elements.micBtn.classList.add("mic-active");
-      elements.micIcon.textContent = "⏹";
-      showElement(elements.micStatus);
-    };
-
-    speechRecognition.onresult = event => {
-      let transcript = "";
-      let finalTranscript = "";
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        transcript += result[0].transcript;
-
-        if (result.isFinal) {
-          finalTranscript += result[0].transcript;
-        }
-      }
-
-      if (transcript && elements.messageInput) {
-        elements.messageInput.value = transcript;
-        elements.messageInput.style.height = "auto";
-        elements.messageInput.style.height =
-          Math.min(elements.messageInput.scrollHeight, 180) + "px";
-      }
-
-      if (finalTranscript.trim()) {
-        elements.messageInput.value = finalTranscript.trim();
-      }
-    };
-
-    speechRecognition.onerror = event => {
-      console.warn("Mikrofonfehler:", event.error);
-
-      if (event.error === "not-allowed") {
-        showToast("Bitte erlaube den Mikrofonzugriff im Browser.");
-      } else if (event.error !== "no-speech" && event.error !== "aborted") {
-        showToast("Die Spracheingabe ist fehlgeschlagen.");
-      }
-    };
-
-    speechRecognition.onend = () => {
-      isListening = false;
-      elements.micBtn.classList.remove("mic-active");
-      elements.micIcon.textContent = "🎙";
-      hideElement(elements.micStatus);
-    };
-  }
-
-  function toggleMicrophone() {
-    if (!speechRecognition) {
-      showToast("Spracheingabe wird nicht unterstützt.");
-      return;
-    }
-
-    if (isListening) {
-      speechRecognition.stop();
-      return;
-    }
-
-    try {
-      speechRecognition.lang =
-        elements.speechLanguage?.value || "de-DE";
-
-      speechRecognition.start();
-    } catch (error) {
-      console.warn("Mikrofon konnte nicht gestartet werden:", error);
-      showToast("Mikrofon konnte nicht gestartet werden.");
-    }
-  }
-
-  // =========================================================
-  // EINSTELLUNGEN
-  // =========================================================
-
-  function loadSettings() {
-    try {
-      const settings = JSON.parse(
-        localStorage.getItem(USER_SETTINGS_KEY) || "{}"
-      );
-
-      if (settings.speechLanguage && elements.speechLanguage) {
-        elements.speechLanguage.value = settings.speechLanguage;
-      }
-    } catch (error) {
-      console.warn("Einstellungen konnten nicht geladen werden:", error);
-    }
-  }
-
-  function saveSettings() {
-    const settings = {
-      speechLanguage: elements.speechLanguage?.value || "de-DE"
-    };
-
-    try {
-      localStorage.setItem(USER_SETTINGS_KEY, JSON.stringify(settings));
-    } catch (error) {
-      console.warn("Einstellungen konnten nicht gespeichert werden:", error);
-    }
-  }
-
-  // =========================================================
-  // BESTÄTIGUNGSDIALOG
-  // =========================================================
-
-  function askConfirmation(title, message, callback) {
-    elements.confirmTitle.textContent = title;
-    elements.confirmMessage.textContent = message;
-    confirmationCallback = callback;
-    openModal(elements.confirmModal);
-  }
-
-  function closeConfirmation() {
-    closeModal(elements.confirmModal);
-    confirmationCallback = null;
-  }
-
-  function acceptConfirmation() {
-    const callback = confirmationCallback;
-    closeConfirmation();
-
-    if (typeof callback === "function") {
-      callback();
-    }
-  }
-
-  // =========================================================
-  // CHATVERLAUF LÖSCHEN
-  // =========================================================
-
-  function clearChatHistory() {
-    askConfirmation(
-      "Chatverlauf löschen?",
-      "Möchtest du alle gespeicherten Chats auf diesem Gerät löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.",
-      () => {
-        chats = [];
-        currentChatId = null;
-
-        saveChats();
-        renderChatHistory();
-        renderMessages();
-        showWelcomeScreen();
-
-        showToast("Chatverlauf wurde gelöscht.");
-      }
-    );
-  }
-
-  // =========================================================
-  // CHAT NEU STARTEN
-  // =========================================================
-
-  function startNewChat() {
-    if (isSending) {
-      showToast("Warte bitte, bis die aktuelle Antwort fertig ist.");
-      return;
-    }
-
-    createNewChat();
-  }
-
-  // =========================================================
-  // TASTATURSTEUERUNG
-  // =========================================================
-
-  function handleMessageKeydown(event) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage(elements.messageInput.value);
-    }
-  }
-
-  // =========================================================
-  // EREIGNISSE VERBINDEN
-  // =========================================================
-
-  function bindEvents() {
-    elements.registerTab?.addEventListener("click", () => {
-      setAuthMode("register");
-    });
-
-    elements.loginTab?.addEventListener("click", () => {
-      setAuthMode("login");
-    });
-
-    elements.authForm?.addEventListener("submit", async event => {
-      event.preventDefault();
-
-      if (!supabaseClient) {
-        showMessage(
-          elements.authError,
-          "Die Anmeldung ist momentan nicht verfügbar."
-        );
-        return;
-      }
-
-      if (isRegisterMode) {
-        await registerUser();
-      } else {
-        await loginUser();
-      }
-    });
-
-    elements.closeAuthModal?.addEventListener("click", () => {
-      closeModal(elements.authModal);
-    });
-
-    elements.resendVerificationBtn?.addEventListener(
-      "click",
-      resendVerificationEmail
-    );
-
-    elements.backToAuthBtn?.addEventListener("click", () => {
-      closeModal(elements.verifyModal);
-      openAuthModal("login");
-      elements.authEmail.value = pendingVerificationEmail;
-    });
-
-    elements.newChatBtn?.addEventListener("click", startNewChat);
-
-    elements.sendBtn?.addEventListener("click", () => {
-      sendMessage(elements.messageInput.value);
-    });
-
-    elements.messageInput?.addEventListener(
-      "keydown",
-      handleMessageKeydown
-    );
-
-    elements.messageInput?.addEventListener("input", () => {
-      elements.messageInput.style.height = "auto";
-      elements.messageInput.style.height =
-        Math.min(elements.messageInput.scrollHeight, 180) + "px";
-    });
-
-    elements.micBtn?.addEventListener("click", toggleMicrophone);
-
-    document.querySelectorAll("[data-prompt]").forEach(button => {
-      button.addEventListener("click", () => {
-        const prompt = button.getAttribute("data-prompt");
-
-        if (!currentUser) {
-          openAuthModal("login");
-          showMessage(
-            elements.authInfo,
-            "Melde dich an, um Void AI zu benutzen."
-          );
-          return;
-        }
-
-        sendMessage(prompt);
-      });
-    });
-
-    elements.openSidebar?.addEventListener("click", () => {
-      elements.sidebar?.classList.toggle("sidebar-open");
-    });
-
-    elements.closeSidebar?.addEventListener("click", () => {
-      elements.sidebar?.classList.remove("sidebar-open");
-    });
-
-    elements.settingsBtn?.addEventListener("click", () => {
-      if (currentUser) {
-        openModal(elements.settingsModal);
-      } else {
-        openAuthModal("login");
-      }
-    });
-
-    elements.closeSettingsModal?.addEventListener("click", () => {
-      closeModal(elements.settingsModal);
-    });
-
-    elements.logoutBtn?.addEventListener("click", logoutUser);
-
-    elements.clearHistoryBtn?.addEventListener(
-      "click",
-      clearChatHistory
-    );
-
-    elements.speechLanguage?.addEventListener("change", saveSettings);
-
-    elements.confirmCancel?.addEventListener(
-      "click",
-      closeConfirmation
-    );
-
-    elements.confirmAccept?.addEventListener(
-      "click",
-      acceptConfirmation
-    );
-
-    elements.accountMenuBtn?.addEventListener("click", () => {
-      if (!currentUser) {
-        openAuthModal("login");
-        return;
-      }
-
-      openModal(elements.settingsModal);
-    });
-
-    elements.userCard?.addEventListener("click", event => {
-      if (event.target === elements.accountMenuBtn) return;
-
-      if (currentUser) {
-        openModal(elements.settingsModal);
-      } else {
-        openAuthModal("login");
-      }
-    });
-
-    [elements.authModal, elements.verifyModal,
-     elements.settingsModal, elements.confirmModal].forEach(modal => {
-      modal?.addEventListener("click", event => {
-        if (event.target === modal) {
-          closeModal(modal);
-        }
-      });
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        closeModal(elements.authModal);
-        closeModal(elements.verifyModal);
-        closeModal(elements.settingsModal);
-        closeConfirmation();
-      }
-    });
-  }
-
-  // =========================================================
-  // TEIL 4 ENDE
-  // =========================================================
-</script>
-<script>
-  // =========================================================
-  // ANMELDUNGSSTATUS UND E-MAIL-BESTÄTIGUNG
-  // =========================================================
-
-  let authListener = null;
-  let initialSessionChecked = false;
-
-  async function checkInitialSession() {
-    if (!supabaseClient) {
-      openAuthModal("register");
-      return;
-    }
-
-    try {
-      const { data, error } =
-        await supabaseClient.auth.getSession();
-
-      if (error) throw error;
-
-      const session = data.session;
-
-      if (session && session.user) {
-        currentUser = session.user;
-        await enterApp(session.user);
-      } else {
-        currentUser = null;
-        openAuthModal("register");
-      }
-    } catch (error) {
-      console.error("Sitzungsprüfung fehlgeschlagen:", error);
-      openAuthModal("register");
-      showToast("Bitte versuche, dich erneut anzumelden.");
-    } finally {
-      initialSessionChecked = true;
-    }
-  }
-
-  function listenForAuthChanges() {
-    if (!supabaseClient) return;
-
-    const result = supabaseClient.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Authentifizierungsereignis:", event);
-
-        if (event === "SIGNED_OUT") {
-          currentUser = null;
-          currentChatId = null;
-          chats = [];
-
-          if (elements.userName) {
-            elements.userName.textContent = "Gast";
-          }
-
-          if (elements.userEmail) {
-            elements.userEmail.textContent = "Nicht angemeldet";
-          }
-
-          if (elements.userAvatar) {
-            elements.userAvatar.textContent = "V";
-          }
-
-          renderChatHistory();
-          showWelcomeScreen();
-          return;
-        }
-
-        if (
-          session &&
-          session.user &&
-          (
-            event === "SIGNED_IN" ||
-            event === "INITIAL_SESSION" ||
-            event === "USER_UPDATED"
-          )
-        ) {
-          currentUser = session.user;
-
-          closeModal(elements.authModal);
-          closeModal(elements.verifyModal);
-
-          if (initialSessionChecked || event !== "INITIAL_SESSION") {
-            await enterApp(session.user);
-          }
-        }
-      }
-    );
-
-    authListener = result.data.subscription;
-  }
-
-  // =========================================================
-  // RÜCKKEHR NACH DER E-MAIL-BESTÄTIGUNG
-  // =========================================================
-
-  function cleanAuthUrl() {
-    try {
-      const url = new URL(window.location.href);
-
-      const hasAuthParameters =
-        url.searchParams.has("code") ||
-        url.hash.includes("access_token=") ||
-        url.hash.includes("error_description=");
-
-      if (!hasAuthParameters) return;
-
-      /*
-       * Supabase verarbeitet den Bestätigungslink.
-       * Nach der Rückkehr entfernen wir Auth-Parameter
-       * aus der sichtbaren URL.
-       */
-      if (url.searchParams.has("code")) {
-        url.searchParams.delete("code");
-        window.history.replaceState(
-          {},
-          document.title,
-          url.pathname + url.search + url.hash
-        );
-      }
-    } catch (error) {
-      console.warn("Die Auth-URL konnte nicht bereinigt werden:", error);
-    }
-  }
-
-  function checkAuthErrorInUrl() {
-    try {
-      const hash = window.location.hash;
-
-      if (!hash || !hash.includes("error")) return;
-
-      const params = new URLSearchParams(hash.replace(/^#/, ""));
-      const description = params.get("error_description");
-
-      if (description) {
-        showToast(
-          "E-Mail-Bestätigung fehlgeschlagen. Öffne einen neuen Bestätigungslink."
-        );
-        console.warn("Supabase-Fehler:", description);
-      }
-    } catch (error) {
-      console.warn("Fehler beim Lesen der Rückgabe-URL:", error);
-    }
-  }
-
-  // =========================================================
-  // APP STARTEN
-  // =========================================================
-
-  async function initializeVoidAI() {
-    console.log("Void AI wird gestartet …");
-
-    bindEvents();
-    loadSettings();
-    initializeSpeechRecognition();
-
-    checkAuthErrorInUrl();
-
-    const supabaseReady = initializeSupabase();
-
-    if (!supabaseReady) {
-      openAuthModal("register");
-      return;
-    }
-
-    listenForAuthChanges();
-
-    await checkInitialSession();
-
-    cleanAuthUrl();
-
-    console.log("Void AI wurde initialisiert.");
-  }
-
-  // =========================================================
-  // FEHLERBEHANDLUNG
-  // =========================================================
-
-  window.addEventListener("online", () => {
-    showToast("Internetverbindung wiederhergestellt.");
-  });
-
-  window.addEventListener("offline", () => {
-    showToast("Du bist offline. KI-Antworten sind nicht verfügbar.");
-  });
-
-  window.addEventListener("unhandledrejection", event => {
-    console.error("Nicht behandelter Fehler:", event.reason);
-  });
-
-  // =========================================================
-  // START
-  // =========================================================
-
-  if (document.readyState === "loading") {
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializeVoidAI,
-      { once: true }
-    );
-  } else {
-    initializeVoidAI();
-  }
-
-  // =========================================================
-  // ENDE VON VOID AI
-  // =========================================================
-</script>
-</body>
-</html>
+  clearAuthMessages();
+  ui.authSubmit.disabled = true;
+  ui.authSubmit.textContent = "Anmeldung läuft …";
+
+  try {
+    const {data,error} = await supabaseClient.au

@@ -1,459 +1,740 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#10091c">
-<title>Void AI</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:#090610;color:#fff;font-family:Arial,sans-serif}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-button:disabled{opacity:.6;cursor:wait}
-.hidden,[hidden]{display:none!important}
-.bg{position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(ellipse at 50% 0%,#512078 0%,#10091c 50%,#08050d 100%)}
-.card{width:calc(100% - 28px);max-width:430px;margin:7vh auto;padding:27px;background:#171020;border:1px solid #573775;border-radius:23px;box-shadow:0 20px 80px #0008}
-.logo{text-align:center;font-size:39px;font-weight:900;letter-spacing:2px;background:linear-gradient(90deg,#c084fc,#f0abfc);color:transparent;background-clip:text}
-.subtitle{text-align:center;color:#b9a8cc;margin:8px 0 24px}
-.tabs{display:flex;gap:8px;margin-bottom:20px}
-.tabs button{flex:1;padding:13px;border:1px solid #49365c;border-radius:10px;background:#241631;color:white}
-.tabs button.active,.primary{background:linear-gradient(100deg,#9333ea,#c026d3);border-color:transparent}
-label{display:block;margin:15px 0 7px;font-size:14px}
-input,textarea{width:100%;padding:13px;border:1px solid #49365c;border-radius:10px;background:#0d0913;color:#fff;outline:none}
-input:focus,textarea:focus{border-color:#c084fc}
-.primary{color:white;border:0;border-radius:10px;padding:14px;font-weight:bold}
-#authSubmit{width:100%;margin-top:22px}
-.notice{padding:12px;margin-top:15px;border-radius:9px;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
-.info{background:#29203b;color:#e9d5ff}
-.error{background:#541b2c;color:#fecdd3}
-.success{background:#173d2a;color:#bbf7d0}
-.small{font-size:12px;color:#b9a8cc;line-height:1.5;margin-top:8px}
-#chatScreen{max-width:900px;margin:auto;min-height:100vh;padding:0 16px;display:flex;flex-direction:column}
-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:18px 0;border-bottom:1px solid #30203e}
-.brand{font-size:24px;font-weight:900;color:#d8a1ff}
-.actions{display:flex;gap:8px;align-items:center}
-.secondary{background:#20152b;border:1px solid #49365c;color:white;border-radius:9px;padding:10px}
-#userLabel{font-size:12px;color:#b9a8cc;overflow-wrap:anywhere}
-main{width:100%;max-width:760px;margin:0 auto;flex:1;display:flex;flex-direction:column}
-.welcome{text-align:center;padding:40px 10px 25px}
-.orb{height:85px;width:85px;border-radius:50%;margin:0 auto 22px;background:radial-gradient(circle at 30% 25%,#f5d0fe,#b64aff 38%,#6421b5 68%,#170a2d);box-shadow:0 0 40px #a855f777;animation:float 4s ease-in-out infinite}
-@keyframes float{50%{transform:translateY(-7px) scale(1.04)}}
-.welcome h1{font-size:clamp(26px,5vw,39px);margin:0 0 12px}
-.purple{background:linear-gradient(90deg,#c084fc,#f0abfc);color:transparent;background-clip:text}
-.welcome p{color:#b9a8cc;line-height:1.6}
-.suggestions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:20px}
-.suggestion{border:1px solid #49365c;background:#191021;color:#e9d5ff;padding:10px 12px;border-radius:18px}
-#messages{display:flex;flex-direction:column;gap:18px;padding:15px 0 25px}
-.msg{display:flex;gap:10px;align-items:flex-start}
-.msg.user{justify-content:flex-end}
-.avatar{flex:0 0 32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#38204e;color:#e9d5ff;font-weight:bold;font-size:12px}
-.msg.user .avatar{order:2;background:#9333ea;color:white}
-.bubble{max-width:85%;padding:13px 15px;border-radius:14px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
-.msg.assistant .bubble{background:#171020;border:1px solid #30203e;border-top-left-radius:4px}
-.msg.user .bubble{background:#38204e;border:1px solid #5c3379;border-top-right-radius:4px}
-.copy{display:block;background:none;border:0;color:#c4b5d5;font-size:12px;padding:8px 0 0}
-#typing{color:#c4b5d5;padding:10px 0}
-.composer-wrap{position:sticky;bottom:0;padding:14px 0 18px;background:linear-gradient(transparent,#090610 20%)}
-.composer{display:flex;align-items:flex-end;gap:8px;padding:9px;border:1px solid #4b315f;background:#15101e;border-radius:16px}
-#chatInput{flex:1;min-width:0;resize:none;border:0;background:transparent;max-height:160px;line-height:1.5}
-#chatInput:focus{border:0}
-#sendButton{width:44px;height:44px;flex:0 0 44px;font-size:20px}
-.help{text-align:center;color:#786886;font-size:11px;margin-top:10px}
-@media(max-width:500px){.card{padding:22px}.actions{gap:5px}.secondary{padding:9px 8px}#userLabel{display:none}.welcome{padding-top:30px}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080611">
+  <title>Void AI – Dein KI-Assistent</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #080611;
+      --panel: #100d1d;
+      --panel2: #171226;
+      --purple: #9b5cff;
+      --pink: #e45aff;
+      --text: #f6f0ff;
+      --muted: #a99ebd;
+      --border: rgba(191, 142, 255, .19);
+      --danger: #ff7373;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 50% -15%, #42206d 0, transparent 45%),
+        radial-gradient(ellipse at 90% 90%, #211044 0, transparent 35%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, Arial, sans-serif;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .hidden { display: none !important; }
+
+    .topbar {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6%;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8, 6, 17, .72);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 850;
+      letter-spacing: -.5px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #a44bff, #5126aa);
+      box-shadow: 0 0 28px #8e42ff55;
+      font-size: 22px;
+    }
+
+    .brand span { color: #c69cff; }
+
+    .status {
+      color: #cbbce0;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff06;
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+
+    .status::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 7px;
+      background: #b58aff;
+      border-radius: 50%;
+    }
+
+    main {
+      width: min(100% - 28px, 1050px);
+      margin: 0 auto;
+      padding: 48px 0 30px;
+    }
+
+    .hero { text-align: center; margin-bottom: 30px; }
+
+    .orb {
+      width: 105px;
+      height: 105px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 33% 25%, #fff 0, #e4c9ff 5%, #b46aff 20%,
+        #7138d9 48%, #24104f 72%, #090612 100%);
+      box-shadow: 0 0 25px #a65affaa, 0 0 75px #7d39ff55,
+        inset -10px -12px 25px #080411;
+      animation: float 4s ease-in-out infinite;
+      position: relative;
+    }
+
+    .orb::after {
+      content: "";
+      position: absolute;
+      inset: -9px;
+      border: 1px solid #c89aff55;
+      border-radius: 50%;
+      animation: pulse 3s ease-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(.9); opacity: .8; }
+      100% { transform: scale(1.23); opacity: 0; }
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 6vw, 51px);
+      letter-spacing: -1.8px;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #d9b7ff, #a96bff, #ed9dff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 570px;
+      margin: 13px auto 0;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, #151023f2, #0d0a18f5);
+      border-radius: 22px;
+      box-shadow: 0 20px 70px #0005;
+      overflow: hidden;
+    }
+
+    .auth-panel {
+      width: min(100%, 450px);
+      padding: 28px;
+      margin: 0 auto;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      padding: 5px;
+      background: #080611;
+      border-radius: 13px;
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      border: 0;
+      color: var(--muted);
+      padding: 12px;
+      border-radius: 9px;
+      background: transparent;
+    }
+
+    .tab.active {
+      color: white;
+      background: #35204e;
+      box-shadow: inset 0 0 0 1px #9d66d833;
+    }
+
+    .field { margin: 15px 0; }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: #d0c2e1;
+      margin-bottom: 8px;
+    }
+
+    .field input, .composer textarea {
+      width: 100%;
+      color: white;
+      background: #090712;
+      border: 1px solid #39294f;
+      border-radius: 12px;
+      padding: 14px;
+      outline: none;
+      transition: border .2s, box-shadow .2s;
+    }
+
+    .field input:focus, .composer textarea:focus {
+      border-color: #a96aff;
+      box-shadow: 0 0 0 3px #a96aff1a;
+    }
+
+    .primary {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      font-weight: 750;
+      background: linear-gradient(100deg, #803de0, #b24cff);
+      box-shadow: 0 8px 25px #8838d633;
+      transition: transform .15s, filter .15s;
+    }
+
+    .primary:hover { filter: brightness(1.12); }
+    .primary:active { transform: scale(.99); }
+    .primary:disabled { opacity: .55; cursor: wait; }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #ffffff08;
+      color: #d4c4e7;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .message.error { color: #ffaaaa; }
+    .message.success { color: #b6ffd5; }
+
+    .fineprint {
+      margin-top: 18px;
+      text-align: center;
+      color: #8d819f;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .chat-panel { margin-top: 10px; }
+
+    .chat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 17px 20px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+
+    .chat-head strong { font-size: 14px; }
+
+    .small-button {
+      color: #e6d5ff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #ffffff06;
+      padding: 9px 12px;
+      font-size: 12px;
+    }
+
+    .small-button:hover { background: #ffffff10; }
+
+    .messages {
+      height: min(47vh, 440px);
+      min-height: 280px;
+      overflow-y: auto;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .bubble {
+      max-width: 88%;
+      padding: 13px 15px;
+      border-radius: 15px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .bubble.ai {
+      align-self: flex-start;
+      background: #1b142a;
+      border: 1px solid #3a2852;
+      border-top-left-radius: 4px;
+    }
+
+    .bubble.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #6230a6, #47217e);
+      border-top-right-radius: 4px;
+    }
+
+    .bubble .who {
+      display: block;
+      font-size: 10px;
+      color: #c8a8f0;
+      margin-bottom: 5px;
+      font-weight: 750;
+      letter-spacing: .4px;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 20px 15px;
+    }
+
+    .suggestion {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #ffffff05;
+      color: #d9c7ef;
+      padding: 9px 12px;
+      font-size: 12px;
+    }
+
+    .suggestion:hover { border-color: #a96aff; }
+
+    .composer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: #08061155;
+    }
+
+    .composer-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .composer textarea {
+      resize: vertical;
+      min-height: 52px;
+      max-height: 150px;
+      line-height: 1.5;
+    }
+
+    .send {
+      flex: 0 0 52px;
+      height: 52px;
+      border: 0;
+      border-radius: 13px;
+      color: white;
+      background: linear-gradient(135deg, #8b40ed, #c052ff);
+      font-size: 20px;
+    }
+
+    .send:disabled { opacity: .5; cursor: wait; }
+
+    .composer-note {
+      margin: 9px 3px 0;
+      color: #857995;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 26px 15px 35px;
+      color: #897d9c;
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    footer b { color: #c8a0ff; }
+
+    @media (max-width: 560px) {
+      .topbar { padding: 0 16px; height: 64px; }
+      main { padding-top: 30px; }
+      .auth-panel { padding: 20px; }
+      .messages { padding: 15px; }
+      .chat-head { padding: 14px; }
+      .bubble { max-width: 95%; }
+      .status { font-size: 10px; }
+    }
+  </style>
 </head>
+
 <body>
-<div class="bg"></div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">◉</div>
+      VOID <span>AI</span>
+    </div>
+    <div class="status">Dein KI-Assistent</div>
+  </header>
 
-<section id="authScreen">
- <div class="card">
-  <div class="logo">VOID AI</div>
-  <div class="subtitle" id="subtitle">Deine KI. Dein Raum.</div>
-  <div class="tabs">
-   <button id="registerTab" type="button" class="active">Registrieren</button>
-   <button id="loginTab" type="button">Anmelden</button>
-  </div>
-  <form id="authForm">
-   <div id="nameGroup">
-    <label for="name">Name</label>
-    <input id="name" autocomplete="name" placeholder="Dein Name" required>
-   </div>
-   <label for="email">E-Mail-Adresse</label>
-   <input id="email" type="email" autocomplete="email" placeholder="name@beispiel.de" required>
-   <label for="password">Passwort</label>
-   <input id="password" type="password" minlength="8" autocomplete="new-password" placeholder="Mindestens 8 Zeichen" required>
-   <div id="confirmGroup">
-    <label for="confirmPassword">Passwort bestätigen</label>
-    <input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Passwort wiederholen" required>
-    <div id="passwordHint" class="small">Beide Passwörter müssen gleich sein.</div>
-   </div>
-   <button id="authSubmit" class="primary" type="submit">Konto erstellen</button>
-  </form>
-  <div id="authMessage" class="notice info" role="status" aria-live="polite">JavaScript wird gestartet …</div>
- </div>
-</section>
+  <main>
+    <section class="hero">
+      <div class="orb"></div>
+      <h1>Willkommen bei <span class="gradient">Void AI</span></h1>
+      <p class="subtitle">
+        Deine Ideen. Deine Fragen. Deine KI.
+        Melde dich an und starte deinen Chat.
+      </p>
+    </section>
 
-<section id="chatScreen" class="hidden">
- <header>
-  <div class="brand">VOID AI</div>
-  <div class="actions">
-   <span id="userLabel"></span>
-   <button id="newChat" type="button" class="secondary">＋ Neu</button>
-   <button id="logout" type="button" class="secondary">Abmelden</button>
-  </div>
- </header>
- <main>
-  <div id="welcome" class="welcome">
-   <div class="orb"></div>
-   <h1>Was möchtest du <span class="purple">wissen?</span></h1>
-   <p>Schreib Void AI eine Nachricht.<br>Fragen, Ideen, Erklärungen und Programmierung.</p>
-   <div class="suggestions">
-    <button type="button" class="suggestion">Erkläre mir etwas Neues</button>
-    <button type="button" class="suggestion">Hilf mir beim Programmieren</button>
-    <button type="button" class="suggestion">Gib mir kreative Ideen</button>
-   </div>
-  </div>
-  <div id="messages"></div>
-  <div id="typing" class="hidden">Void AI denkt nach …</div>
-  <div id="chatMessage" class="notice info hidden" role="status"></div>
-  <div class="composer-wrap">
-   <form id="chatForm" class="composer">
-    <textarea id="chatInput" rows="1" placeholder="Schreibe eine Nachricht an Void AI …" aria-label="Nachricht"></textarea>
-    <button id="sendButton" class="primary" type="submit" aria-label="Senden">➤</button>
-   </form>
-   <div class="help">Enter zum Senden · Shift + Enter für eine neue Zeile</div>
-  </div>
- </main>
-</section>
+    <section id="authPanel" class="panel auth-panel">
+      <div class="tabs">
+        <button id="loginTab" class="tab active" type="button">Anmelden</button>
+        <button id="signupTab" class="tab" type="button">Registrieren</button>
+      </div>
 
-<script>
-"use strict";
+      <form id="authForm">
+        <div id="nameField" class="field hidden">
+          <label for="displayName">Dein Name</label>
+          <input id="displayName" type="text" maxlength="40"
+            autocomplete="name" placeholder="Wie sollen wir dich nennen?">
+        </div>
 
-/* Deine vorhandenen Verbindungsdaten */
-const SUPABASE_URL = "https://onewdrztvuffzxdnqmvi.supabase.co";
-const SUPABASE_KEY = "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA";
-const AI_URL = "https://void-ai-api.cguerpinar.workers.dev/";
+        <div class="field">
+          <label for="email">E-Mail-Adresse</label>
+          <input id="email" type="email" required maxlength="254"
+            autocomplete="email" placeholder="du@beispiel.de">
+        </div>
 
-const $ = id => document.getElementById(id);
-let db = null;
-let mode = "register";
-let authBusy = false;
-let chatBusy = false;
-let user = null;
-let history = [];
+        <div class="field">
+          <label for="password">Passwort</label>
+          <input id="password" type="password" required minlength="8"
+            autocomplete="current-password" placeholder="Mindestens 8 Zeichen">
+        </div>
 
-function notice(id, text, type = "info") {
- const el = $(id);
- el.textContent = text;
- el.className = "notice " + type;
- el.hidden = false;
- el.classList.remove("hidden");
-}
-function clearNotice(id) {
- $(id).textContent = "";
- $(id).classList.add("hidden");
-}
-function setMode(next) {
- mode = next;
- const reg = mode === "register";
- $("registerTab").classList.toggle("active", reg);
- $("loginTab").classList.toggle("active", !reg);
- $("nameGroup").classList.toggle("hidden", !reg);
- $("confirmGroup").classList.toggle("hidden", !reg);
- $("name").required = reg;
- $("confirmPassword").required = reg;
- $("password").autocomplete = reg ? "new-password" : "current-password";
- $("subtitle").textContent = reg ? "Deine KI. Dein Raum." : "Willkommen zurück.";
- $("authSubmit").textContent = reg ? "Konto erstellen" : "Anmelden";
- notice("authMessage", reg ? "Erstelle dein kostenloses Konto." : "Melde dich mit deinem bestehenden Konto an.");
-}
-$("registerTab").onclick = () => setMode("register");
-$("loginTab").onclick = () => setMode("login");
+        <div id="confirmField" class="field hidden">
+          <label for="confirmPassword">Passwort bestätigen</label>
+          <input id="confirmPassword" type="password" minlength="8"
+            autocomplete="new-password" placeholder="Passwort erneut eingeben">
+        </div>
 
-function passwordsMatch() {
- const p = $("password").value;
- const c = $("confirmPassword").value;
- $("confirmPassword").setCustomValidity("");
- if (mode !== "register") return true;
- if (p !== c) {
-  $("confirmPassword").setCustomValidity("Die Passwörter stimmen nicht überein.");
-  $("passwordHint").textContent = "Passwörter stimmen nicht überein.";
-  $("passwordHint").style.color = "#fda4af";
-  return false;
- }
- $("passwordHint").textContent = "Passwörter stimmen überein.";
- $("passwordHint").style.color = "#86efac";
- return true;
-}
-$("password").addEventListener("input", passwordsMatch);
-$("confirmPassword").addEventListener("input", passwordsMatch);
+        <button id="authSubmit" class="primary" type="submit">
+          Anmelden
+        </button>
+        <div id="authMessage" class="message hidden" role="status"></div>
+      </form>
 
-function authError(err) {
- const m = err?.message || String(err || "Unbekannter Fehler");
- if (/invalid login credentials/i.test(m)) return "E-Mail oder Passwort ist falsch.";
- if (/email not confirmed/i.test(m)) return "Bestätige zuerst deine E-Mail-Adresse.";
- if (/already registered|already been registered/i.test(m)) return "Diese E-Mail ist bereits registriert. Wechsle zu Anmelden.";
- if (/password should be at least/i.test(m)) return "Das Passwort muss mindestens 8 Zeichen haben.";
- if (/failed to fetch|networkerror/i.test(m)) return "Verbindung fehlgeschlagen. Prüfe deine Internetverbindung.";
- return "Supabase-Fehler: " + m;
-}
+      <p class="fineprint">
+        Deine Zugangsdaten werden über Supabase verarbeitet.
+        Verwende ein Passwort, das du nicht auf anderen Websites benutzt.
+      </p>
+    </section>
 
-function openChat(u) {
- user = u;
- $("authScreen").classList.add("hidden");
- $("chatScreen").classList.remove("hidden");
- $("userLabel").textContent = u.user_metadata?.name || u.email || "Angemeldet";
- clearNotice("chatMessage");
- $("chatInput").focus();
-}
+    <section id="chatPanel" class="panel chat-panel hidden">
+      <div class="chat-head">
+        <div>
+          <strong>◉ Dein Void AI Chat</strong><br>
+          <span id="welcomeName" style="font-size:11px;color:#a99ebd"></span>
+        </div>
+        <button id="logoutButton" class="small-button" type="button">
+          Abmelden
+        </button>
+      </div>
 
-function openLogin() {
- user = null;
- $("chatScreen").classList.add("hidden");
- $("authScreen").classList.remove("hidden");
- setMode("login");
-}
+      <div id="messages" class="messages" aria-live="polite">
+        <div class="bubble ai">
+          <span class="who">VOID AI</span>
+          Hey! 👋 Ich bin Void AI. Was möchtest du wissen?
+        </div>
+      </div>
 
-$("authForm").addEventListener("submit", async event => {
- event.preventDefault();
- if (authBusy) return;
- if (!db) {
-  notice("authMessage", "Supabase ist nicht bereit. Lade die Seite neu.", "error");
-  return;
- }
+      <div class="suggestions">
+        <button class="suggestion" data-prompt="Erkläre mir etwas Spannendes über das Weltall.">🌌 Weltall</button>
+        <button class="suggestion" data-prompt="Hilf mir, eine coole Website zu programmieren.">💻 Programmieren</button>
+        <button class="suggestion" data-prompt="Gib mir drei kreative Ideen für ein Projekt.">✨ Ideen</button>
+      </div>
 
- const email = $("email").value.trim();
- const password = $("password").value;
+      <form id="chatForm" class="composer">
+        <div class="composer-row">
+          <textarea id="chatInput" maxlength="4000" required
+            placeholder="Schreibe deine Nachricht an Void AI..."></textarea>
+          <button id="sendButton" class="send" type="submit"
+            aria-label="Nachricht senden">➤</button>
+        </div>
+        <p class="composer-note">
+          Void AI versucht, respektvoll zu antworten. Automatische Filter
+          können Fehler machen und nicht jede mögliche Schreibweise erkennen.
+        </p>
+        <div id="chatMessage" class="message hidden" role="status"></div>
+      </form>
+    </section>
+  </main>
 
- if (mode === "register") {
-  if ($("name").value.trim().length < 2) {
-   notice("authMessage", "Der Name muss mindestens 2 Zeichen haben.", "error");
-   return;
-  }
-  if (password.length < 8) {
-   notice("authMessage", "Das Passwort muss mindestens 8 Zeichen haben.", "error");
-   return;
-  }
-  if (!passwordsMatch()) {
-   notice("authMessage", "Die Passwörter sind nicht gleich.", "error");
-   return;
-  }
- }
+  <footer>
+    <b>Void AI</b> · Erstellt von Zabntos mit KI-Technologie von OpenAI.<br>
+    Bleib neugierig. Denk groß. Willkommen im Void.
+  </footer>
 
- authBusy = true;
- $("authSubmit").disabled = true;
- $("authSubmit").textContent = mode === "register" ? "Registrierung läuft …" : "Anmeldung läuft …";
+  <script>
+    // Supabase-Projekt: öffentliche Publishable Key verwenden.
+    const SUPABASE_URL = "https://onewdrztvuffzxdnqmvi.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA";
 
- try {
-  if (mode === "register") {
-   const {data, error} = await db.auth.signUp({
-    email, password,
-    options: {data: {
-     name: $("name").value.trim(),
-     display_name: $("name").value.trim()
-    }}
-   });
-   if (error) throw error;
+    // Dein veröffentlichter Cloudflare-Worker.
+    const AI_URL = "https://void-ai-api.cguerpinar.workers.dev/";
 
-   if (data.session && data.user) {
-    openChat(data.user);
-    notice("chatMessage", "Konto erstellt. Du bist angemeldet.", "success");
-   } else {
-    setMode("login");
-    $("email").value = email;
-    notice("authMessage", "Registrierung angefragt. Falls E-Mail-Bestätigung aktiviert ist, bestätige die E-Mail und melde dich danach an. Eine vorhandene E-Mail kann nicht erneut als neues Konto registriert werden.", "success");
-   }
-  } else {
-   const {data, error} = await db.auth.signInWithPassword({email, password});
-   if (error) throw error;
-   if (!data.user) throw new Error("Kein Benutzer zurückgegeben.");
-   openChat(data.user);
-  }
- } catch (err) {
-  console.error("Auth:", err);
-  notice("authMessage", authError(err), "error");
- } finally {
-  authBusy = false;
-  $("authSubmit").disabled = false;
-  $("authSubmit").textContent = mode === "register" ? "Konto erstellen" : "Anmelden";
- }
-});
+    const supabase = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
 
-function addMessage(role, text) {
- $("welcome").classList.add("hidden");
- const row = document.createElement("div");
- row.className = "msg " + role;
- const avatar = document.createElement("div");
- avatar.className = "avatar";
- avatar.textContent = role === "user" ? "Du" : "V";
- const wrap = document.createElement("div");
- wrap.style.minWidth = "0";
- const bubble = document.createElement("div");
- bubble.className = "bubble";
- bubble.textContent = text;
- wrap.appendChild(bubble);
- if (role === "assistant") {
-  const copy = document.createElement("button");
-  copy.className = "copy";
-  copy.type = "button";
-  copy.textContent = "Antwort kopieren";
-  copy.onclick = async () => {
-   try {
-    await navigator.clipboard.writeText(text);
-    copy.textContent = "Kopiert ✓";
-   } catch {
-    copy.textContent = "Kopieren nicht verfügbar";
-   }
-  };
-  wrap.appendChild(copy);
- }
- row.append(avatar, wrap);
- $("messages").appendChild(row);
- window.scrollTo({top:document.body.scrollHeight, behavior:"smooth"});
-}
+    const $ = id => document.getElementById(id);
 
-function extractAnswer(data) {
- if (typeof data === "string") {
-  try { return extractAnswer(JSON.parse(data)); } catch { return data; }
- }
- if (!data || typeof data !== "object") return "";
- if (typeof data.reply === "string") return data.reply;
- if (typeof data.response === "string") return data.response;
- if (typeof data.answer === "string") return data.answer;
- if (typeof data.output === "string") return data.output;
- if (typeof data.text === "string") return data.text;
- if (typeof data.message === "string") return data.message;
- if (data.choices?.[0]?.message?.content) return data.choices[0].message.content;
- if (data.choices?.[0]?.text) return data.choices[0].text;
- if (data.content?.[0]?.text) return data.content[0].text;
- return "";
-}
+    let mode = "login";
+    let currentSession = null;
+    let history = [];
+    let sending = false;
 
-async function sendChat(text) {
- text = text.trim();
- if (!text || chatBusy) return;
- if (!user) {
-  notice("chatMessage", "Melde dich bitte zuerst an.", "error");
-  return;
- }
+    function showMessage(id, text, type = "") {
+      const element = $(id);
+      element.textContent = text;
+      element.className = "message" + (type ? " " + type : "");
+      element.classList.remove("hidden");
+    }
 
- chatBusy = true;
- clearNotice("chatMessage");
- addMessage("user", text);
- history.push({role:"user", content:text});
- $("chatInput").value = "";
- $("chatInput").style.height = "auto";
- $("sendButton").disabled = true;
- $("chatInput").disabled = true;
- $("typing").classList.remove("hidden");
+    function hideMessage(id) {
+      $(id).classList.add("hidden");
+      $(id).textContent = "";
+    }
 
- try {
-  const response = await fetch(AI_URL, {
-   method:"POST",
-   headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({
-    message:text,
-    prompt:text,
-    messages:history,
-    conversation:history
-   })
-  });
+    function setMode(nextMode) {
+      mode = nextMode;
+      const signup = mode === "signup";
 
-  const raw = await response.text();
-  let data;
-  try { data = JSON.parse(raw); } catch { data = raw; }
+      $("loginTab").classList.toggle("active", !signup);
+      $("signupTab").classList.toggle("active", signup);
+      $("nameField").classList.toggle("hidden", !signup);
+      $("confirmField").classList.toggle("hidden", !signup);
+      $("displayName").required = signup;
+      $("confirmPassword").required = signup;
+      $("password").autocomplete = signup ? "new-password" : "current-password";
+      $("authSubmit").textContent = signup ? "Konto erstellen" : "Anmelden";
+      hideMessage("authMessage");
+    }
 
-  if (!response.ok) {
-   const details = typeof data === "object"
-    ? (data.error || data.message || JSON.stringify(data))
-    : data;
-   throw new Error("Worker HTTP " + response.status + ": " + String(details).slice(0,350));
-  }
+    $("loginTab").addEventListener("click", () => setMode("login"));
+    $("signupTab").addEventListener("click", () => setMode("signup"));
 
-  const answer = extractAnswer(data);
-  if (!answer) {
-   throw new Error("Der Worker antwortet, aber das Antwortformat ist unbekannt. Antwortanfang: " + String(raw).slice(0,250));
-  }
+    function showChat(session) {
+      currentSession = session;
+      $("authPanel").classList.add("hidden");
+      $("chatPanel").classList.remove("hidden");
 
-  addMessage("assistant", answer);
-  history.push({role:"assistant", content:answer});
- } catch (err) {
-  console.error("AI Worker:", err);
-  notice("chatMessage", "KI-Fehler: " + (err.message || String(err)) + " Dein Konto funktioniert möglicherweise trotzdem.", "error");
- } finally {
-  chatBusy = false;
-  $("sendButton").disabled = false;
-  $("chatInput").disabled = false;
-  $("typing").classList.add("hidden");
-  $("chatInput").focus();
- }
-}
+      const name = session.user.user_metadata?.display_name
+        || session.user.email
+        || "Willkommen";
 
-$("chatForm").addEventListener("submit", event => {
- event.preventDefault();
- sendChat($("chatInput").value);
-});
-$("chatInput").addEventListener("keydown", event => {
- if (event.key === "Enter" && !event.shiftKey) {
-  event.preventDefault();
-  $("chatForm").requestSubmit();
- }
-});
-$("chatInput").addEventListener("input", () => {
- $("chatInput").style.height = "auto";
- $("chatInput").style.height = Math.min($("chatInput").scrollHeight, 160) + "px";
-});
-document.querySelectorAll(".suggestion").forEach(b => {
- b.addEventListener("click", () => {
-  $("chatInput").value = b.textContent.trim();
-  $("chatInput").focus();
- });
-});
-$("newChat").onclick = () => {
- history = [];
- $("messages").replaceChildren();
- $("welcome").classList.remove("hidden");
- clearNotice("chatMessage");
- $("chatInput").value = "";
-};
-$("logout").onclick = async () => {
- if (!db) return;
- const {error} = await db.auth.signOut();
- if (error) {
-  notice("chatMessage", "Abmelden fehlgeschlagen: " + error.message, "error");
-  return;
- }
- history = [];
- $("messages").replaceChildren();
- openLogin();
-};
+      $("welcomeName").textContent = "Angemeldet als " + name;
+      $("chatInput").focus();
+    }
 
-async function start() {
- if (!window.supabase?.createClient) {
-  notice("authMessage", "Supabase-Skript konnte nicht geladen werden. Prüfe Internet und lade die Seite neu.", "error");
-  return;
- }
- try {
-  db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const {data, error} = await db.auth.getSession();
-  if (error) throw error;
-  if (data.session?.user) openChat(data.session.user);
-  else {
-   setMode("register");
-   notice("authMessage", "Bereit. Du kannst dich registrieren oder anmelden.", "success");
-  }
-  db.auth.onAuthStateChange((event, session) => {
-   if (event === "SIGNED_OUT") openLogin();
-  });
- } catch (err) {
-  console.error("Start:", err);
-  notice("authMessage", "Startfehler: " + (err.message || String(err)), "error");
- }
-}
-start();
-</script>
-</body>
-</html>
+    function showAuth() {
+      currentSession = null;
+      $("chatPanel").classList.add("hidden");
+      $("authPanel").classList.remove("hidden");
+    }
+
+    async function refreshSession() {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        showAuth();
+        showMessage("authMessage", "Sitzung konnte nicht geladen werden. Bitte melde dich erneut an.", "error");
+        return;
+      }
+
+      if (data.session) showChat(data.session);
+      else showAuth();
+    }
+
+    $("authForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      hideMessage("authMessage");
+
+      const email = $("email").value.trim();
+      const password = $("password").value;
+      const button = $("authSubmit");
+
+      button.disabled = true;
+      button.textContent = "Bitte warten...";
+
+      try {
+        if (mode === "signup") {
+          const name = $("displayName").value.trim();
+          const confirm = $("confirmPassword").value;
+
+          if (password !== confirm) {
+            throw new Error("Die beiden Passwörter stimmen nicht überein.");
+          }
+
+          if (password.length < 8) {
+            throw new Error("Dein Passwort muss mindestens 8 Zeichen haben.");
+          }
+
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { display_name: name }
+            }
+          });
+
+          if (error) throw error;
+
+          if (data.session) {
+            showChat(data.session);
+          } else {
+            showMessage(
+              "authMessage",
+              "Registrierung eingereicht! Falls E-Mail-Bestätigung in Supabase aktiviert ist, bestätige zuerst deine E-Mail und melde dich dann an.",
+              "success"
+            );
+            setMode("login");
+          }
+        } else {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (error) throw error;
+          if (!data.session) throw new Error("Keine aktive Sitzung erhalten.");
+          showChat(data.session);
+        }
+      } catch (error) {
+        showMessage("authMessage", error.message || "Das hat nicht funktioniert. Bitte versuche es erneut.", "error");
+      } finally {
+        button.disabled = false;
+        button.textContent = mode === "signup" ? "Konto erstellen" : "Anmelden";
+      }
+    });
+
+    $("logoutButton").addEventListener("click", async () => {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        showMessage("chatMessage", "Abmelden fehlgeschlagen. Bitte versuche es erneut.", "error");
+        return;
+      }
+
+      history = [];
+      $("messages").replaceChildren();
+      showAuth();
+      setMode("login");
+    });
+
+    function addBubble(text, role) {
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + (role === "assistant" ? "ai" : "user");
+
+      const who = document.createElement("span");
+      who.className = "who";
+      who.textContent = role === "assistant" ? "VOID AI" : "DU";
+
+      const content = document.createElement("div");
+      content.textContent = text;
+
+      bubble.append(who, content);
+      $("messages").appendChild(bubble);
+      $("messages").scrollTop = $("messages").scrollHeight;
+      return bubble;
+    }
+
+    // Zusätzlicher Filter im Browser. Der Worker besitzt den zweiten Filter.
+    function clientSideFilter(text) {
+      const patterns = [
+        /\b(?:arschloch|arschlöcher|arsch|scheiße|scheisse|scheiß|scheiss)\b/i,
+        /\b(?:fick(?:en|t|e|st|er|ers)?|gefickt|ficken)\b/i,
+        /\b(?:wichser|wichs(?:en|er|t)|hurensohn|hurensohn)\b/i,
+        /\b(?:bastard|verpiss(?:en|t|e)?|miststück)\b/i,
+        /\b(?:fuck(?:er|ing|ed)?|shit|bullshit|bitch(?:es)?|asshole|motherfucker)\b/i,
+        /\b(?:son of a bitch|piece of shit)\b/i
+      ];
+
+      if (patterns.some(pattern => pattern.test(text))) {
+        return {
+          text: "Diese Antwort wurde blockiert, weil sie möglicherweise gegen die Sprachregeln verstößt.",
+          blocked: true
+        };
+      }
+
+      return { text, blocked: false };
+    }
+
+    async function sendMessage(rawText) {
+      const text = rawText.trim();
+      if (!text || sending) return;
+
+      if (!currentSession) {
+        showAuth();
+        showMessage("authMessage", "Bitte melde dich an, bevor du chattest.", "error");
+        return;
+      }
+
+      hideMessage("chatMessage");
+      sending = true;
+      $("sendButton").disabled = true;
+      $("chatInput").disabled = true;
+
+      addBubble(text, "user");
+      const waitingBubble = addBubble("Void AI denkt nach...", "assistant");
+
+      try {
+        const response = await fetch(AI_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + currentSession.access_token
+          },
+          body: JSON.st

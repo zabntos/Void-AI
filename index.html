@@ -4,52 +4,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10091c">
 <title>Void AI – Konto</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{
  margin:0;min-height:100vh;display:flex;align-items:center;
  justify-content:center;padding:20px;color:#fff;
  font-family:Arial,sans-serif;
- background:radial-gradient(ellipse at top,#451477,#10091c 55%,#07050d);
+ background:radial-gradient(ellipse at top,#542080,#10091c 55%,#07050d);
 }
 .card{
- width:100%;max-width:420px;padding:30px;
+ width:100%;max-width:430px;padding:30px;
  background:#171020;border:1px solid #7135a5;border-radius:22px;
  box-shadow:0 20px 80px #0008;
 }
-.logo{text-align:center;font-size:35px;font-weight:900;
+.logo{
+ text-align:center;font-size:38px;font-weight:900;
  background:linear-gradient(90deg,#c084fc,#f0abfc);
- color:transparent;background-clip:text;margin-bottom:8px}
-.subtitle{text-align:center;color:#b9a8cc;margin-bottom:25px}
-.tabs{display:flex;gap:8px;margin-bottom:22px}
-.tabs button,.submit{
- flex:1;padding:13px;border:0;border-radius:10px;
- background:#2b1b3b;color:#fff;font-weight:bold;cursor:pointer
+ color:transparent;background-clip:text;margin-bottom:8px;
 }
+.subtitle{text-align:center;color:#c4b5d5;margin-bottom:24px}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tabs button,.submit{
+ padding:13px;border:0;border-radius:10px;
+ background:#2b1b3b;color:white;font-weight:bold;cursor:pointer;
+}
+.tabs button{flex:1}
 .tabs button.active,.submit{
- background:linear-gradient(100deg,#9333ea,#c026d3)
+ background:linear-gradient(100deg,#9333ea,#c026d3);
 }
 label{display:block;margin:15px 0 7px;font-size:14px}
 input{
- width:100%;padding:13px;border-radius:10px;
- border:1px solid #49365c;background:#0d0913;color:#fff;
- outline:none;font-size:15px
+ width:100%;padding:14px;border-radius:10px;
+ border:1px solid #49365c;background:#0d0913;color:white;
+ outline:none;font-size:16px;
 }
 input:focus{border-color:#c084fc}
-.submit{width:100%;margin-top:22px;font-size:15px}
-button:disabled{opacity:.6}
-#message{margin-top:16px;padding:12px;border-radius:9px;
- font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.submit{width:100%;margin-top:22px;font-size:16px}
+button:disabled{opacity:.6;cursor:wait}
+#message{
+ margin-top:16px;padding:12px;border-radius:9px;
+ font-size:14px;line-height:1.5;overflow-wrap:anywhere;
+}
 .error{background:#541b2c;color:#fecdd3}
 .success{background:#173d2a;color:#bbf7d0}
-.hint{font-size:12px;color:#c4b5d5;margin-top:7px}
-#confirmGroup[hidden]{display:none}
+.info{background:#29203b;color:#e9d5ff}
+.hint{font-size:12px;color:#c4b5d5;margin-top:8px}
+[hidden]{display:none!important}
+.footer{text-align:center;color:#9e8caf;font-size:12px;margin-top:20px}
 </style>
 </head>
+
 <body>
-<div class="card">
+<main class="card">
  <div class="logo">VOID AI</div>
  <div class="subtitle" id="subtitle">Erstelle dein kostenloses Konto</div>
 
@@ -62,36 +71,44 @@ button:disabled{opacity:.6}
   <div id="nameGroup">
    <label for="name">Name</label>
    <input id="name" type="text" autocomplete="name"
-          placeholder="Dein Name" required>
+    placeholder="Dein Name" required>
   </div>
 
   <label for="email">E-Mail-Adresse</label>
   <input id="email" type="email" autocomplete="email"
-         placeholder="name@beispiel.de" required>
+   placeholder="name@beispiel.de" required>
 
   <label for="password">Passwort</label>
   <input id="password" type="password" minlength="8"
-         autocomplete="new-password" placeholder="Mindestens 8 Zeichen" required>
+   autocomplete="new-password" placeholder="Mindestens 8 Zeichen" required>
 
   <div id="confirmGroup">
    <label for="confirmPassword">Passwort bestätigen</label>
    <input id="confirmPassword" type="password" minlength="8"
-          autocomplete="new-password" placeholder="Passwort wiederholen" required>
+    autocomplete="new-password" placeholder="Passwort wiederholen" required>
    <div class="hint" id="passwordHint">Beide Passwörter müssen gleich sein.</div>
   </div>
 
-  <button class="submit" id="submitButton" type="submit">Konto erstellen</button>
+  <button class="submit" id="submitButton" type="submit">
+   Konto erstellen
+  </button>
  </form>
 
- <div id="message" role="status" hidden></div>
-</div>
+ <div id="message" class="info" role="status" aria-live="polite">
+  Verbindung wird vorbereitet …
+ </div>
+ <div class="footer">Void AI · Dein Konto</div>
+</main>
 
-<script>
-"use strict";
+<script type="module">
+import { createClient } from
+ "https://esm.sh/@supabase/supabase-js@2";
 
-/* DEINE SUPABASE-DATEN */
-const SUPABASE_URL = "https://onewdrztvuffzxdnqmvi.supabase.co";
-const SUPABASE_KEY = "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA";
+const SUPABASE_URL =
+ "https://onewdrztvuffzxdnqmvi.supabase.co";
+
+const SUPABASE_KEY =
+ "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA";
 
 const $ = id => document.getElementById(id);
 
@@ -102,20 +119,14 @@ const passwordInput = $("password");
 const confirmInput = $("confirmPassword");
 const button = $("submitButton");
 const message = $("message");
-const passwordHint = $("passwordHint");
 
 let mode = "register";
-let client = null;
+let client;
 
-function showMessage(text, type) {
+function showMessage(text, type = "info") {
  message.textContent = text;
  message.className = type;
  message.hidden = false;
-}
-
-function clearMessage() {
- message.hidden = true;
- message.textContent = "";
 }
 
 function setMode(nextMode) {
@@ -124,81 +135,81 @@ function setMode(nextMode) {
 
  $("registerTab").classList.toggle("active", registering);
  $("loginTab").classList.toggle("active", !registering);
+
  $("nameGroup").hidden = !registering;
  $("confirmGroup").hidden = !registering;
+
  nameInput.required = registering;
  confirmInput.required = registering;
- passwordInput.autocomplete = registering
-  ? "new-password" : "current-password";
+
+ passwordInput.autocomplete =
+  registering ? "new-password" : "current-password";
 
  $("subtitle").textContent = registering
   ? "Erstelle dein kostenloses Konto"
-  : "Melde dich bei deinem Konto an";
+  : "Willkommen zurück bei Void AI";
 
  button.textContent = registering ? "Konto erstellen" : "Anmelden";
- passwordHint.textContent = "Beide Passwörter müssen gleich sein.";
- clearMessage();
+ showMessage(
+  registering
+   ? "Gib deine Daten ein, um ein Konto zu erstellen."
+   : "Gib deine E-Mail-Adresse und dein Passwort ein."
+ );
 }
+
+$("registerTab").addEventListener("click", () => setMode("register"));
+$("loginTab").addEventListener("click", () => setMode("login"));
 
 function checkPasswords() {
  confirmInput.setCustomValidity("");
 
- if (mode !== "register" || !confirmInput.value) {
-  passwordHint.textContent = "Beide Passwörter müssen gleich sein.";
-  passwordHint.style.color = "";
-  return true;
- }
+ if (mode !== "register") return true;
 
  if (passwordInput.value !== confirmInput.value) {
   confirmInput.setCustomValidity("Die Passwörter stimmen nicht überein.");
-  passwordHint.textContent = "✖ Passwörter stimmen nicht überein.";
-  passwordHint.style.color = "#fda4af";
+  $("passwordHint").textContent = "Die Passwörter stimmen nicht überein.";
+  $("passwordHint").style.color = "#fda4af";
   return false;
  }
 
- passwordHint.textContent = "✓ Passwörter stimmen überein.";
- passwordHint.style.color = "#86efac";
+ $("passwordHint").textContent = "Die Passwörter stimmen überein.";
+ $("passwordHint").style.color = "#86efac";
  return true;
 }
 
 passwordInput.addEventListener("input", checkPasswords);
 confirmInput.addEventListener("input", checkPasswords);
 
-$("registerTab").addEventListener("click", () => setMode("register"));
-$("loginTab").addEventListener("click", () => setMode("login"));
+function friendlyError(error) {
+ const text = error?.message || "Unbekannter Fehler.";
 
-function init() {
- if (!window.supabase || !window.supabase.createClient) {
-  showMessage(
-   "Supabase konnte nicht geladen werden. Prüfe deine Internetverbindung und lade die Seite neu.",
-   "error"
-  );
-  button.disabled = true;
-  return;
- }
+ if (/invalid login credentials/i.test(text))
+  return "E-Mail oder Passwort ist falsch.";
 
- try {
-  client = window.supabase.createClient(
-   SUPABASE_URL,
-   SUPABASE_KEY
-  );
- } catch (error) {
-  console.error(error);
-  showMessage("Supabase konnte nicht gestartet werden.", "error");
-  button.disabled = true;
- }
+ if (/email not confirmed/i.test(text))
+  return "Deine E-Mail ist noch nicht bestätigt. Prüfe dein Postfach.";
+
+ if (/already registered|already been registered/i.test(text))
+  return "Diese E-Mail ist bereits registriert. Wähle Anmelden.";
+
+ if (/password should be at least/i.test(text))
+  return "Dein Passwort ist zu kurz.";
+
+ if (/failed to fetch|networkerror|fetch failed/i.test(text))
+  return "Keine Verbindung zu Supabase. Prüfe dein Internet und lade die Seite neu.";
+
+ return "Supabase meldet: " + text;
 }
 
-form.addEventListener("submit", async function(event) {
+form.addEventListener("submit", async event => {
  event.preventDefault();
- clearMessage();
 
  if (!client) {
-  showMessage("Supabase ist nicht verbunden. Lade die Seite neu.", "error");
+  showMessage("Supabase ist nicht bereit. Lade die Seite neu.", "error");
   return;
  }
 
- const email = $("email").value.trim();
+ const email = emailInput.value.trim();
  const password = passwordInput.value;
 
  if (mode === "register") {
@@ -209,14 +220,13 @@ form.addEventListener("submit", async function(event) {
   }
 
   if (password.length < 8) {
-   showMessage("Dein Passwort muss mindestens 8 Zeichen haben.", "error");
+   showMessage("Das Passwort muss mindestens 8 Zeichen haben.", "error");
    passwordInput.focus();
    return;
   }
 
   if (!checkPasswords()) {
-   showMessage("Die beiden Passwörter stimmen nicht überein.", "error");
-   confirmInput.reportValidity();
+   showMessage("Die beiden Passwörter sind nicht gleich.", "error");
    confirmInput.focus();
    return;
   }
@@ -224,13 +234,16 @@ form.addEventListener("submit", async function(event) {
 
  button.disabled = true;
  button.textContent = mode === "register"
-  ? "Konto wird erstellt …" : "Anmeldung läuft …";
+  ? "Konto wird erstellt …"
+  : "Anmeldung läuft …";
+
+ showMessage("Anfrage wird gesendet …");
 
  try {
   if (mode === "register") {
-   const {data, error} = await client.auth.signUp({
-    email: email,
-    password: password,
+   const { data, error } = await client.auth.signUp({
+    email,
+    password,
     options: {
      data: {
       name: nameInput.value.trim(),
@@ -242,51 +255,51 @@ form.addEventListener("submit", async function(event) {
    if (error) throw error;
 
    if (data.session) {
-    showMessage("Registrierung erfolgreich! Du bist angemeldet.", "success");
+    showMessage(
+     "Konto erfolgreich erstellt! Du bist jetzt angemeldet.",
+     "success"
+    );
    } else {
     showMessage(
-     "Registrierung angefragt. Falls E-Mail-Bestätigung aktiviert ist, bestätige deine E-Mail, bevor du dich anmeldest.",
+     "Registrierung erfolgreich angefragt! Falls E-Mail-Bestätigung in Supabase aktiviert ist, bestätige zuerst deine E-Mail. Danach kannst du dich anmelden.",
      "success"
     );
    }
   } else {
-   const {data, error} = await client.auth.signInWithPassword({
-    email: email,
-    password: password
+   const { data, error } = await client.auth.signInWithPassword({
+    email,
+    password
    });
 
    if (error) throw error;
 
    if (data.user) {
     showMessage(
-     "Anmeldung erfolgreich! Du bist als " +
-     (data.user.user_metadata?.name || data.user.email) +
-     " angemeldet.",
+     "Erfolgreich angemeldet! Willkommen bei Void AI, " +
+     (data.user.user_metadata?.name || data.user.email) + ".",
      "success"
     );
+   } else {
+    showMessage("Anmeldung nicht abgeschlossen. Bitte versuche es erneut.", "error");
    }
   }
  } catch (error) {
-  console.error("Supabase Auth:", error);
-
-  const text = error.message || "Unbekannter Fehler.";
-
-  if (/invalid login credentials/i.test(text)) {
-   showMessage("E-Mail oder Passwort ist falsch. Prüfe deine Eingaben.", "error");
-  } else if (/email not confirmed/i.test(text)) {
-   showMessage("Deine E-Mail wurde noch nicht bestätigt. Prüfe dein Postfach.", "error");
-  } else if (/already registered|already been registered/i.test(text)) {
-   showMessage("Dieses Konto existiert möglicherweise bereits. Wechsle zu Anmelden.", "error");
-  } else {
-   showMessage("Supabase-Fehler: " + text, "error");
-  }
+  console.error("Void AI Anmeldung:", error);
+  showMessage(friendlyError(error), "error");
  } finally {
   button.disabled = false;
   button.textContent = mode === "register" ? "Konto erstellen" : "Anmelden";
  }
 });
 
-init();
+try {
+ client = createClient(SUPABASE_URL, SUPABASE_KEY);
+ showMessage("Verbindung bereit. Du kannst dich registrieren oder anmelden.", "success");
+} catch (error) {
+ console.error(error);
+ showMessage("Supabase konnte nicht gestartet werden: " + (error.message || error), "error");
+ button.disabled = true;
+}
 </script>
 </body>
 </html>

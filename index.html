@@ -2,1157 +2,2046 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#090611">
-<meta name="description" content="Void AI – Deine KI. Deine Welt.">
-<title>Void AI</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-/* =========================================================
-   VOID AI — DESIGN SYSTEM
-   ========================================================= */
-
-:root {
-  color-scheme: dark;
-  --bg: #090611;
-  --bg-soft: #0d0815;
-  --panel: #130d20;
-  --panel-light: #1a1127;
-  --panel-hover: #241532;
-  --border: #352449;
-  --border-light: #4b3265;
-  --purple: #a855f7;
-  --purple-light: #d8b4fe;
-  --purple-dark: #6b21a8;
-  --text: #f8f5ff;
-  --muted: #aa9bbd;
-  --danger: #fca5a5;
-  --success: #86efac;
-  --radius: 18px;
-  --sidebar-width: 260px;
-  --transition: 180ms ease;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  min-height: 100%;
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-button,
-input,
-textarea {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-  color: inherit;
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: .55;
-}
-
-button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--purple-light);
-  outline-offset: 3px;
-}
-
-button,
-input,
-textarea {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.purple {
-  color: var(--purple-light);
-}
-
-.small {
-  font-size: 12px;
-}
-
-.full {
-  width: 100%;
-}
-
-.center {
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 22px;
-}
-
-button.primary {
-  background: linear-gradient(135deg, #9333ea, #7e22ce);
-  color: white;
-  border: 1px solid #a855f7;
-}
-
-button.primary:hover {
-  filter: brightness(1.12);
-  transform: translateY(-1px);
-}
-
-button.secondary {
-  background: var(--panel-hover);
-  border: 1px solid var(--border);
-  color: var(--text);
-}
-
-button.secondary:hover {
-  background: #301b42;
-  border-color: var(--border-light);
-}
-
-button {
-  border-radius: 12px;
-  padding: 11px 15px;
-  font-weight: 650;
-  transition:
-    background var(--transition),
-    border-color var(--transition),
-    transform var(--transition),
-    opacity var(--transition);
-}
-
-input,
-textarea {
-  width: 100%;
-  background: #0d0815;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 13px 14px;
-  outline: none;
-  transition: border-color var(--transition);
-}
-
-input:focus,
-textarea:focus {
-  border-color: var(--purple);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #82718f;
-}
-
-a {
-  color: var(--purple-light);
-}
-
-/* =========================================================
-   ANIMATIONS
-   ========================================================= */
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-9px);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: .65;
-    transform: scale(.98);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
-  }
-}
-
-@keyframes appear {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-  }
-}
-
-/* =========================================================
-   AUTHENTICATION SCREEN
-   ========================================================= */
-
-#authScreen {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background:
-    radial-gradient(ellipse at 15% 15%, #6b21a81b, transparent 45%),
-    radial-gradient(ellipse at 85% 80%, #9333ea18, transparent 40%),
-    var(--bg);
-}
-
-.auth-glow {
-  position: absolute;
-  width: 330px;
-  height: 330px;
-  border-radius: 50%;
-  background: #9333ea0c;
-  filter: blur(70px);
-  pointer-events: none;
-  z-index: -1;
-}
-
-.auth-glow.one {
-  top: -120px;
-  left: -100px;
-}
-
-.auth-glow.two {
-  right: -100px;
-  bottom: -120px;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 430px;
-  padding: 30px;
-  background: #130d20f5;
-  border: 1px solid var(--border);
-  border-radius: 25px;
-  box-shadow: 0 20px 80px #00000055, 0 0 40px #9333ea0c;
-  animation: appear .35s ease both;
-  backdrop-filter: blur(14px);
-}
-
-.logo {
-  text-align: center;
-  font-size: 33px;
-  font-weight: 950;
-  letter-spacing: 2px;
-  color: var(--purple-light);
-  text-shadow: 0 0 25px #a855f740;
-}
-
-.logo-mark {
-  display: inline-block;
-  margin-right: 5px;
-}
-
-.subtitle {
-  text-align: center;
-  color: var(--muted);
-  margin: 8px 0 26px;
-  font-size: 14px;
-}
-
-.auth-card h2 {
-  text-align: center;
-  font-size: 23px;
-  margin: 0 0 22px;
-}
-
-.field {
-  margin-bottom: 14px;
-}
-
-.field label {
-  display: block;
-  color: #d8c6ec;
-  font-size: 13px;
-  margin-bottom: 7px;
-}
-
-.field input {
-  margin: 0;
-}
-
-.auth-submit {
-  margin-top: 8px;
-  min-height: 47px;
-}
-
-.switch {
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-  margin-top: 20px;
-}
-
-.switch a {
-  text-decoration: none;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.switch a:hover {
-  text-decoration: underline;
-}
-
-.auth-footer {
-  text-align: center;
-  color: #766783;
-  font-size: 11px;
-  margin-top: 25px;
-}
-
-#status {
-  color: var(--purple-light);
-  font-size: 13px;
-  line-height: 1.5;
-  margin-top: 12px;
-  overflow-wrap: anywhere;
-}
-
-#error {
-  color: var(--danger);
-  font-size: 13px;
-  line-height: 1.6;
-  margin-top: 10px;
-  overflow-wrap: anywhere;
-}
-
-#success {
-  color: var(--success);
-  font-size: 13px;
-  line-height: 1.5;
-  margin-top: 8px;
-}
-
-/* =========================================================
-   VERIFICATION MODAL
-   ========================================================= */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #05020ad9;
-  backdrop-filter: blur(10px);
-}
-
-.modal-box {
-  width: 100%;
-  max-width: 410px;
-  padding: 30px;
-  text-align: center;
-  border: 1px solid #70409a;
-  border-radius: 23px;
-  background:
-    radial-gradient(ellipse at top, #9333ea17, transparent 65%),
-    var(--panel);
-  box-shadow: 0 20px 90px #0009, 0 0 45px #9333ea20;
-  animation: appear .25s ease both;
-}
-
-.modal-icon {
-  width: 70px;
-  height: 70px;
-  display: grid;
-  place-items: center;
-  border-radius: 22px;
-  margin: 0 auto 18px;
-  background: #9333ea1c;
-  border: 1px solid #9333ea4a;
-  font-size: 34px;
-}
-
-.modal-box h2 {
-  margin: 0 0 12px;
-  color: var(--purple-light);
-  font-size: 24px;
-}
-
-.modal-box p {
-  color: #c4b5d5;
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-.verify-address {
-  padding: 12px;
-  margin: 15px 0;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #0d0815;
-  color: var(--purple-light);
-  overflow-wrap: anywhere;
-}
-
-.modal-actions {
-  display: grid;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.modal-note {
-  color: var(--muted) !important;
-  font-size: 12px !important;
-}
-
-/* =========================================================
-   MAIN APPLICATION LAYOUT
-   ========================================================= */
-
-.app {
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  background: var(--bg);
-}
-
-.sidebar {
-  width: var(--sidebar-width);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px 14px;
-  background: #100b19;
-  border-right: 1px solid #2b1c39;
-}
-
-.brand {
-  padding: 7px 8px 17px;
-  font-size: 25px;
-  font-weight: 950;
-  letter-spacing: 1px;
-  color: var(--purple-light);
-}
-
-.brand span {
-  color: white;
-}
-
-.side-button {
-  width: 100%;
-  text-align: left;
-}
-
-.side-label {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.sidebar-heading {
-  padding: 15px 8px 4px;
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  color: #857492;
-}
-
-#chatList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  overflow-y: auto;
-  max-height: 45vh;
-}
-
-.chat-item {
-  width: 100%;
-  padding: 11px 12px;
-  text-align: left;
-  font-size: 13px;
-  font-weight: 450;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #c9bad8;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.chat-item:hover {
-  background: #1b1126;
-}
-
-.chat-item.active {
-  background: #291638;
-  border-color: #5c3479;
-  color: white;
-}
-
-.sidebar-spacer {
-  flex: 1;
-  min-height: 15px;
-}
-
-.userbox {
-  padding-top: 15px;
-  border-top: 1px solid var(--border);
-  overflow-wrap: anywhere;
-}
-
-.user-avatar {
-  width: 37px;
-  height: 37px;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 13px;
-  background: linear-gradient(135deg, #9333ea, #581c87);
-  font-weight: 850;
-}
-
-.user-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-details {
-  min-width: 0;
-  flex: 1;
-}
-
-#userName {
-  font-size: 13px;
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-#userEmail {
-  font-size: 11px;
-  color: var(--muted);
-  overflow-wrap: anywhere;
-  margin-top: 3px;
-}
-
-.logout-button {
-  margin-top: 13px;
-}
-
-/* =========================================================
-   MAIN CHAT
-   ========================================================= */
-
-.main {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-.top {
-  min-height: 64px;
-  padding: 13px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px solid #261a32;
-  background: #090611e8;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  backdrop-filter: blur(14px);
-}
-
-.top-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.top-title {
-  font-weight: 850;
-  color: var(--purple-light);
-}
-
-.top-subtitle {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.connection-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: #9c8aa9;
-  font-size: 11px;
-}
-
-.connection-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #a855f7;
-  box-shadow: 0 0 10px #a855f7;
-}
-
-.messages {
-  flex: 1;
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 30px 24px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.welcome {
-  margin: auto;
-  max-width: 500px;
-  width: 100%;
-  padding: 30px 10px;
-  text-align: center;
-  animation: appear .4s ease both;
-}
-
-.sphere {
-  width: 105px;
-  height: 105px;
-  margin: 0 auto 27px;
-  position: relative;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 24%, #f5eaff 0%, #d8b4fe 10%,
-      #a855f7 27%, #6b21a8 49%, #28103f 72%, #090611 100%);
-  box-shadow:
-    0 0 35px #9333ea65,
-    0 0 80px #9333ea18,
-    inset -12px -15px 25px #05020a;
-  animation: float 3s ease-in-out infinite;
-}
-
-.sphere::after {
-  content: "";
-  position: absolute;
-  inset: -9px;
-  border: 1px solid #a855f72b;
-  border-radius: 50%;
-  animation: pulse 3s ease-in-out infinite;
-}
-
-.welcome h1 {
-  margin: 0 0 12px;
-  font-size: clamp(25px, 4vw, 34px);
-  letter-spacing: -.7px;
-}
-
-.welcome p {
-  color: var(--muted);
-  line-height: 1.7;
-}
-
-.welcome-tip {
-  display: inline-block;
-  margin-top: 14px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  color: #bca9cf;
-  background: #130d20;
-  font-size: 12px;
-}
-
-/* =========================================================
-   MESSAGE BUBBLES
-   ========================================================= */
-
-.msg {
-  max-width: 88%;
-  padding: 15px 17px;
-  border-radius: 17px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  animation: appear .18s ease both;
-}
-
-.msg.user {
-  align-self: flex-end;
-  background: linear-gradient(135deg, #632a8e, #472064);
-  border: 1px solid #8243ae;
-  border-bottom-right-radius: 5px;
-}
-
-.msg.ai {
-  align-self: flex-start;
-  background: #171020;
-  border: 1px solid #33223f;
-  border-bottom-left-radius: 5px;
-}
-
-.msg-label {
-  display: block;
-  margin-bottom: 6px;
-  color: var(--purple-light);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .6px;
-}
-
-.msg-content {
-  overflow-wrap: anywhere;
-}
-
-.msg-tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 12px;
-}
-
-.msg-tools button {
-  padding: 7px 10px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.typing {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  padding: 5px 0;
-}
-
-.typing span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--purple-light);
-  animation: pulse .8s ease-in-out infinite;
-}
-
-.typing span:nth-child(2) {
-  animation-delay: .15s;
-}
-
-.typing span:nth-child(3) {
-  animation-delay: .3s;
-}
-
-/* =========================================================
-   MESSAGE COMPOSER
-   ========================================================= */
-
-.composer {
-  position: sticky;
-  bottom: 0;
-  z-index: 4;
-  padding: 12px 18px 10px;
-  background: linear-gradient(transparent, var(--bg) 15%);
-}
-
-.compose-inner {
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 10px;
-  border: 1px solid #49305e;
-  border-radius: 19px;
-  background: #130d20;
-  box-shadow: 0 10px 40px #00000022;
-  transition: border-color var(--transition);
-}
-
-.compose-inner:focus-within {
-  border-color: #8650ac;
-}
-
-#prompt {
-  display: block;
-  width: 100%;
-  min-height: 45px;
-  max-height: 180px;
-  padding: 10px;
-  resize: none;
-  background: transparent;
-  border: 0;
-  border-radius: 10px;
-  line-height: 1.6;
-}
-
-#prompt:focus {
-  border: 0;
-  outline: none;
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 4px 2px 1px;
-}
-
-.actions-left,
-.actions-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.smallbtn {
-  padding: 9px 12px;
-  font-size: 12px;
-}
-
-#micStatus {
-  font-size: 12px;
-}
-
-#micStatus:empty {
-  display: none;
-}
-
-.composer-note {
-  max-width: 820px;
-  margin: 9px auto 0;
-  text-align: center;
-  font-size: 10px;
-  color: #756582;
-  line-height: 1.5;
-}
-
-#sendBtn {
-  min-width: 95px;
-}
-
-/* =========================================================
-   MOBILE NAVIGATION
-   ========================================================= */
-
-.mobile-menu {
-  display: none;
-}
-
-.sidebar-backdrop {
-  display: none;
-}
-
-/* =========================================================
-   RESPONSIVE DESIGN
-   ========================================================= */
-
-@media (max-width: 760px) {
-  :root {
-    --sidebar-width: 260px;
-  }
-
-  .sidebar {
-    position: fixed;
-    z-index: 100;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: var(--sidebar-width);
-    transform: translateX(-105%);
-    transition: transform .22s ease;
-    box-shadow: 15px 0 50px #0005;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .sidebar-backdrop.open {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 90;
-    background: #0009;
-  }
-
-  .mobile-menu {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 39px;
-    height: 39px;
-    padding: 0;
-    font-size: 19px;
-  }
-
-  .top {
-    padding: 11px 13px;
-    min-height: 59px;
-  }
-
-  .top-subtitle {
-    display: none;
-  }
-
-  .messages {
-    padding: 23px 13px 30px;
-    gap: 15px;
-  }
-
-  .msg {
-    max-width: 96%;
-    padding: 13px 14px;
-    font-size: 14px;
-  }
-
-  .composer {
-    padding: 9px 9px 8px;
-  }
-
-  .composer-note {
-    font-size: 9px;
-  }
-
-  .welcome {
-    padding: 20px 6px;
-  }
-
-  .sphere {
-    width: 88px;
-    height: 88px;
-  }
-
-  .auth-card {
-    padding: 24px 20px;
-  }
-}
-
-@media (max-width: 380px) {
-  .auth-card {
-    padding: 21px 16px;
-  }
-
-  .logo {
-    font-size: 28px;
-  }
-
-  .actions {
-    gap: 5px;
-  }
-
-  #sendBtn {
-    min-width: 78px;
-    padding: 9px;
-  }
-
-  .smallbtn {
-    padding: 9px;
-  }
-
-  #micStatus {
-    font-size: 10px;
-  }
-}
-
-/* =========================================================
-   ACCESSIBILITY AND SCROLLBARS
-   ========================================================= */
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #49305e transparent;
-}
-
-::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #49305e;
-  border-radius: 99px;
-}
-
-::selection {
-  background: #9333ea70;
-  color: white;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10091d">
+  <meta name="description" content="Void AI – dein persönlicher KI-Chat.">
+  <title>Void AI</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090611;
+      --bg-soft: #10091d;
+      --panel: #150d24;
+      --panel-2: #1b1030;
+      --panel-3: #21143a;
+      --purple: #b86cff;
+      --purple-bright: #d7a4ff;
+      --purple-deep: #7b2bcb;
+      --text: #f7f1ff;
+      --muted: #b7a9c8;
+      --muted-2: #8c7da0;
+      --border: rgba(210, 170, 255, .17);
+      --border-strong: rgba(210, 170, 255, .32);
+      --danger: #ff7e9a;
+      --success: #8cf0bd;
+      --warning: #ffd27c;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .38);
+      --radius: 20px;
+      --sidebar-width: 280px;
+      --header-height: 72px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(119, 45, 180, .15), transparent 36%),
+        radial-gradient(ellipse at 95% 80%, rgba(80, 28, 132, .12), transparent 34%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--purple-bright);
+      outline-offset: 3px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
+    a {
+      color: var(--purple-bright);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      flex: 0 0 var(--sidebar-width);
+      min-height: 100vh;
+      padding: 22px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      background: rgba(14, 8, 24, .91);
+      border-right: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 4px 5px 12px;
+    }
+
+    .brand-orb {
+      position: relative;
+      width: 43px;
+      height: 43px;
+      flex: 0 0 43px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 25%, #f4dcff 0%, #c785ff 17%, #7a29ca 46%, #241039 76%);
+      box-shadow: 0 0 25px rgba(176, 93, 255, .42), inset -5px -7px 14px rgba(0, 0, 0, .45);
+      animation: orb-float 5s ease-in-out infinite;
+    }
+
+    .brand-orb::after {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 9px;
+      width: 10px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .75);
+      filter: blur(2px);
+      transform: rotate(-30deg);
+    }
+
+    .brand-name {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -.7px;
+      line-height: 1.1;
+    }
+
+    .brand-caption {
+      margin-top: 4px;
+      color: var(--muted-2);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .new-chat-button,
+    .primary-button {
+      border: 1px solid rgba(221, 183, 255, .35);
+      border-radius: 14px;
+      background: linear-gradient(135deg, #a64cf0, #6c24b8);
+      color: white;
+      box-shadow: 0 8px 25px rgba(120, 40, 200, .22);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+
+    .new-chat-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 15px;
+    }
+
+    .new-chat-button:hover,
+    .primary-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+      box-shadow: 0 11px 28px rgba(120, 40, 200, .3);
+    }
+
+    .sidebar-section-title {
+      padding: 0 9px;
+      color: var(--muted-2);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.7px;
+      text-transform: uppercase;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+      min-height: 60px;
+      max-height: calc(100vh - 360px);
+    }
+
+    .history-empty {
+      padding: 12px 10px;
+      color: var(--muted-2);
+      font-size: 13px;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      width: 100%;
+      min-width: 0;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      padding: 10px 11px;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease;
+    }
+
+    .history-item:hover,
+    .history-item.active {
+      background: rgba(183, 108, 255, .11);
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .history-item-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .history-delete {
+      width: 25px;
+      height: 25px;
+      flex: 0 0 25px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted-2);
+      cursor: pointer;
+      opacity: 0;
+    }
+
+    .history-item:hover .history-delete,
+    .history-delete:focus-visible {
+      opacity: 1;
+    }
+
+    .history-delete:hover {
+      color: var(--danger);
+      background: rgba(255, 126, 154, .1);
+    }
+
+    .sidebar-spacer {
+      flex: 1;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .account-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .025);
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      border-radius: 50%;
+      color: white;
+      background: linear-gradient(135deg, #c17aff, #6d35b5);
+      font-weight: 800;
+    }
+
+    .account-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .account-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .account-email {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 2px;
+      color: var(--muted-2);
+      font-size: 11px;
+    }
+
+    .subtle-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: rgba(255, 255, 255, .025);
+      color: var(--muted);
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+
+    .subtle-button:hover {
+      background: rgba(183, 108, 255, .1);
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+  </style>
 </head>
-
 <body>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-orb"></div>
+          <span>VOID AI</span>
+        </div>
+        <button class="icon-btn" id="closeSidebar" title="Menü schließen">✕</button>
+      </div>
 
-<!-- =======================================================
-     REGISTRATION AND LOGIN
-     ======================================================= -->
+      <button class="new-chat-btn" id="newChatBtn">
+        <span>＋</span> Neuer Chat
+      </button>
 
-<section id="authScreen" class="center">
-  <div class="auth-glow one"></div>
-  <div class="auth-glow two"></div>
+      <div class="sidebar-label">DEINE CHATS</div>
+      <div class="chat-history" id="chatHistory"></div>
 
-  <div class="auth-card">
-    <div class="logo">
-      <span class="logo-mark">✦</span> VOID AI
-    </div>
+      <div class="sidebar-bottom">
+        <button class="sidebar-action" id="settingsBtn">
+          <span>⚙</span> Einstellungen
+        </button>
+        <div class="user-card" id="userCard">
+          <div class="avatar" id="userAvatar">V</div>
+          <div class="user-info">
+            <div class="user-name" id="userName">Gast</div>
+            <div class="user-email" id="userEmail">Nicht angemeldet</div>
+          </div>
+          <button class="icon-btn" id="accountMenuBtn" title="Konto">⋯</button>
+        </div>
+      </div>
+    </aside>
 
-    <div class="subtitle">Deine KI. Deine Welt.</div>
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn" id="openSidebar" title="Menü">☰</button>
+        <div class="topbar-brand">
+          <div class="mini-orb"></div>
+          <span>Void AI</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-dot"></span>
+          <span class="status-text">Bereit</span>
+        </div>
+      </header>
 
-    <!-- REGISTRATION -->
+      <section class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-orb-wrap">
+          <div class="orb-glow"></div>
+          <div class="welcome-orb">
+            <div class="orb-core"></div>
+            <div class="orb-ring orb-ring-one"></div>
+            <div class="orb-ring orb-ring-two"></div>
+          </div>
+        </div>
 
-    <form id="registerForm">
-      <h2>Konto erstellen</h2>
+        <div class="welcome-badge">
+          <span class="status-dot"></span>
+          DEIN KI-ASSISTENT
+        </div>
 
-      <div class="field">
-        <label for="regName">Name</label>
+        <h1>Willkommen in der<br>
+          <span class="gradient-text">Leere des Möglichen.</span>
+        </h1>
+
+        <p class="welcome-description">
+          Ich bin Void AI. Frag mich etwas, entwickle Ideen
+          oder starte dein nächstes Projekt.
+        </p>
+
+        <div class="suggestion-grid">
+          <button class="suggestion-card" data-prompt="Erkläre mir etwas Interessantes über das Universum.">
+            <span class="suggestion-icon">✦</span>
+            <span class="suggestion-title">Das Universum</span>
+            <span class="suggestion-description">Entdecke etwas Neues</span>
+          </button>
+
+          <button class="suggestion-card" data-prompt="Hilf mir, eine coole Website zu programmieren.">
+            <span class="suggestion-icon">⌘</span>
+            <span class="suggestion-title">Programmieren</span>
+            <span class="suggestion-description">Erstelle etwas Eigenes</span>
+          </button>
+
+          <button class="suggestion-card" data-prompt="Gib mir fünf kreative Ideen für ein Projekt.">
+            <span class="suggestion-icon">◇</span>
+            <span class="suggestion-title">Neue Ideen</span>
+            <span class="suggestion-description">Denk anders</span>
+          </button>
+
+          <button class="suggestion-card" data-prompt="Erkläre mir ein schwieriges Thema ganz einfach.">
+            <span class="suggestion-icon">◎</span>
+            <span class="suggestion-title">Lernen</span>
+            <span class="suggestion-description">Verstehe mehr</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="conversation" id="conversation" hidden>
+        <div class="messages" id="messages"></div>
+      </section>
+
+      <div class="composer-area">
+        <div class="composer" id="composer">
+          <textarea
+            id="messageInput"
+            placeholder="Frag Void AI etwas ..."
+            rows="1"
+            maxlength="12000"
+            aria-label="Deine Nachricht"
+          ></textarea>
+
+          <div class="composer-toolbar">
+            <div class="composer-tools">
+              <button class="tool-btn" id="micBtn" title="Spracheingabe">
+                <span id="micIcon">🎙</span>
+                <span id="micStatus" hidden>Spracherkennung aktiv</span>
+              </button>
+              <span class="tool-divider"></span>
+              <span class="model-label">
+                <span class="model-dot"></span>
+                Void AI
+              </span>
+            </div>
+
+            <button class="send-btn" id="sendBtn" title="Nachricht senden">
+              <span>↑</span>
+            </button>
+          </div>
+        </div>
+
+        <p class="disclaimer">
+          Void AI kann Fehler machen. Überprüfe wichtige Informationen.
+        </p>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="modal-overlay" id="authModal" hidden>
+    <div class="modal auth-modal">
+      <button class="modal-close" id="closeAuthModal" aria-label="Schließen">×</button>
+
+      <div class="modal-orb"></div>
+      <div class="modal-eyebrow">DEIN PERSÖNLICHER ASSISTENT</div>
+      <h2 id="authTitle">Erstelle dein Konto</h2>
+      <p class="modal-description" id="authDescription">
+        Registriere dich kostenlos und nutze Void AI.
+      </p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="registerTab">Registrieren</button>
+        <button class="auth-tab" id="loginTab">Anmelden</button>
+      </div>
+
+      <form id="authForm">
+        <label for="authName">Name</label>
         <input
-          id="regName"
+          id="authName"
+          name="name"
           type="text"
-          autocomplete="name"
           placeholder="Dein Name"
+          autocomplete="name"
           maxlength="60"
           required
         >
-      </div>
 
-      <div class="field">
-        <label for="regEmail">E-Mail-Adresse</label>
+        <label for="authEmail">E-Mail-Adresse</label>
         <input
-          id="regEmail"
+          id="authEmail"
+          name="email"
           type="email"
-          autocomplete="email"
           placeholder="name@beispiel.de"
-          required
-        >
-      </div>
-
-      <div class="field">
-        <label for="regPassword">Passwort</label>
-        <input
-          id="regPassword"
-          type="password"
-          autocomplete="new-password"
-          placeholder="Mindestens 6 Zeichen"
-          minlength="6"
-          required
-        >
-      </div>
-
-      <div class="field">
-        <label for="regConfirm">Passwort bestätigen</label>
-        <input
-          id="regConfirm"
-          type="password"
-          autocomplete="new-password"
-          placeholder="Passwort erneut eingeben"
-          minlength="6"
-          required
-        >
-      </div>
-
-      <button id="registerBtn" class="primary full auth-submit" type="submit">
-        Konto erstellen
-      </button>
-
-      <div class="switch">
-        Schon ein Konto?
-        <a id="showLogin" role="button" tabindex="0">Anmelden</a>
-      </div>
-    </form>
-
-    <!-- LOGIN -->
-
-    <form id="loginForm" class="hidden">
-      <h2>Willkommen zurück</h2>
-
-      <div class="field">
-        <label for="loginEmail">E-Mail-Adresse</label>
-        <input
-          id="loginEmail"
-          type="email"
           autocomplete="email"
-          placeholder="Deine E-Mail-Adresse"
           required
         >
-      </div>
 
-      <div class="field">
-        <label for="loginPassword">Passwort</label>
+        <label for="authPassword">Passwort</label>
         <input
-          id="loginPassword"
+          id="authPassword"
+          name="password"
           type="password"
-          autocomplete="current-password"
-          placeholder="Dein Passwort"
+          placeholder="Mindestens 8 Zeichen"
+          autocomplete="new-password"
+          minlength="8"
           required
         >
-      </div>
 
-      <button id="loginBtn" class="primary full auth-submit" type="submit">
-        Anmelden
-      </button>
+        <div id="confirmPasswordGroup">
+          <label for="authPasswordConfirm">Passwort bestätigen</label>
+          <input
+            id="authPasswordConfirm"
+            name="passwordConfirm"
+            type="password"
+            placeholder="Passwort wiederholen"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          >
+        </div>
 
-      <div class="switch">
-        Noch kein Konto?
-        <a id="showRegister" role="button" tabindex="0">Registrieren</a>
-      </div>
+        <div class="form-error" id="authError" role="alert" hidden></div>
+        <div class="form-info" id="authInfo" role="status" hidden></div>
 
-      <div class="switch">
-        <a id="showForgot" role="button" tabindex="0">
-          Passwort vergessen?
-        </a>
-      </div>
-    </form>
+        <button class="primary-btn" id="authSubmit" type="submit">
+          Konto erstellen
+        </button>
+      </form>
 
-    <!-- PASSWORD RESET -->
+      <p class="auth-legal">
+        Mit der Registrierung stimmst du der verantwortungsvollen Nutzung
+        von Void AI zu.
+      </p>
+    </div>
+  </div>
 
-    <form id="forgotForm" class="hidden">
-      <h2>Passwort zurücksetzen</h2>
-
-      <p class="muted" style="font-size:13px;line-height:1.7">
-        Gib deine E-Mail-Adresse ein. Wenn ein passendes Konto existiert,
-        kannst du eine Nachricht zum Zurücksetzen anfordern.
+  <div class="modal-overlay" id="verifyModal" hidden>
+    <div class="modal verify-modal">
+      <div class="verify-icon">✉</div>
+      <div class="modal-eyebrow">FAST GESCHAFFT</div>
+      <h2>Bestätige deine E-Mail</h2>
+      <p class="modal-description">
+        Wir haben eine Bestätigungsnachricht angefordert.
+        Öffne den Link in der E-Mail, um dein Konto zu bestätigen.
       </p>
 
-      <div class="field">
-        <label for="forgotEma
+      <div class="email-preview" id="verifyEmailPreview"></div>
+
+      <div class="verify-hint">
+        <strong>Keine E-Mail erhalten?</strong>
+        <p>Prüfe deinen Spam-Ordner. Es kann einige Minuten dauern.</p>
+      </div>
+
+      <div class="form-error" id="verifyError" role="alert" hidden></div>
+      <div class="form-info" id="verifyInfo" role="status" hidden></div>
+
+      <button class="primary-btn" id="resendVerificationBtn" type="button">
+        Bestätigungs-E-Mail erneut senden
+      </button>
+
+      <button class="secondary-btn" id="backToAuthBtn" type="button">
+        Zurück zur Anmeldung
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="settingsModal" hidden>
+    <div class="modal settings-modal">
+      <button class="modal-close" id="closeSettingsModal" aria-label="Schließen">×</button>
+      <div class="modal-eyebrow">PERSONALISIERUNG</div>
+      <h2>Einstellungen</h2>
+      <p class="modal-description">Passe Void AI an deine Wünsche an.</p>
+
+      <div class="setting-row">
+        <div>
+          <strong>Sprache</strong>
+          <p>Sprache der Spracheingabe</p>
+        </div>
+        <select id="speechLanguage">
+          <option value="de-DE">Deutsch</option>
+          <option value="en-US">English</option>
+        </select>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <strong>Chatverlauf</strong>
+          <p>Gespeicherte Chats auf diesem Gerät löschen</p>
+        </div>
+        <button class="danger-btn" id="clearHistoryBtn">Löschen</button>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <strong>Konto</strong>
+          <p id="settingsAccountEmail">Nicht angemeldet</p>
+        </div>
+        <button class="secondary-btn small-btn" id="logoutBtn">Abmelden</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal" hidden>
+    <div class="modal confirm-modal">
+      <h2 id="confirmTitle">Bist du sicher?</h2>
+      <p class="modal-description" id="confirmMessage"></p>
+      <div class="confirm-actions">
+        <button class="secondary-btn" id="confirmCancel">Abbrechen</button>
+        <button class="danger-btn" id="confirmAccept">Bestätigen</button>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  "use strict";
+
+  // =========================================================
+  // VOID AI – KONFIGURATION
+  // =========================================================
+
+  const CONFIG = {
+    SUPABASE_URL: "https://onewdrztvuffzxdnqmvi.supabase.co",
+    SUPABASE_KEY: "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA",
+    AI_ENDPOINT: "https://void-ai-api.cguerpinar.workers.dev/",
+    REDIRECT_URL: window.location.origin + window.location.pathname
+  };
+
+  // =========================================================
+  // ELEMENTE
+  // =========================================================
+
+  const $ = id => document.getElementById(id);
+
+  const elements = {
+    authModal: $("authModal"),
+    authForm: $("authForm"),
+    authName: $("authName"),
+    authEmail: $("authEmail"),
+    authPassword: $("authPassword"),
+    authPasswordConfirm: $("authPasswordConfirm"),
+    authTitle: $("authTitle"),
+    authDescription: $("authDescription"),
+    authSubmit: $("authSubmit"),
+    authError: $("authError"),
+    authInfo: $("authInfo"),
+    registerTab: $("registerTab"),
+    loginTab: $("loginTab"),
+    confirmPasswordGroup: $("confirmPasswordGroup"),
+    verifyModal: $("verifyModal"),
+    verifyEmailPreview: $("verifyEmailPreview"),
+    verifyError: $("verifyError"),
+    verifyInfo: $("verifyInfo"),
+    resendVerificationBtn: $("resendVerificationBtn"),
+    backToAuthBtn: $("backToAuthBtn"),
+    closeAuthModal: $("closeAuthModal"),
+    closeSidebar: $("closeSidebar"),
+    openSidebar: $("openSidebar"),
+    sidebar: $("sidebar"),
+    newChatBtn: $("newChatBtn"),
+    chatHistory: $("chatHistory"),
+    welcomeScreen: $("welcomeScreen"),
+    conversation: $("conversation"),
+    messages: $("messages"),
+    messageInput: $("messageInput"),
+    sendBtn: $("sendBtn"),
+    micBtn: $("micBtn"),
+    micIcon: $("micIcon"),
+    micStatus: $("micStatus"),
+    userName: $("userName"),
+    userEmail: $("userEmail"),
+    userAvatar: $("userAvatar"),
+    userCard: $("userCard"),
+    accountMenuBtn: $("accountMenuBtn"),
+    settingsBtn: $("settingsBtn"),
+    settingsModal: $("settingsModal"),
+    closeSettingsModal: $("closeSettingsModal"),
+    settingsAccountEmail: $("settingsAccountEmail"),
+    logoutBtn: $("logoutBtn"),
+    clearHistoryBtn: $("clearHistoryBtn"),
+    speechLanguage: $("speechLanguage"),
+    confirmModal: $("confirmModal"),
+    confirmTitle: $("confirmTitle"),
+    confirmMessage: $("confirmMessage"),
+    confirmCancel: $("confirmCancel"),
+    confirmAccept: $("confirmAccept"),
+    toastContainer: $("toastContainer")
+  };
+
+  // =========================================================
+  // ANWENDUNGSZUSTAND
+  // =========================================================
+
+  let supabaseClient = null;
+  let currentUser = null;
+  let currentChatId = null;
+  let chats = [];
+  let isSending = false;
+  let isRegisterMode = true;
+  let pendingVerificationEmail = "";
+  let speechRecognition = null;
+  let isListening = false;
+  let confirmationCallback = null;
+
+  const STORAGE_KEY = "void_ai_chats_v3";
+  const USER_SETTINGS_KEY = "void_ai_settings_v1";
+
+  // =========================================================
+  // HILFSFUNKTIONEN
+  // =========================================================
+
+  function showElement(element) {
+    if (element) element.hidden = false;
+  }
+
+  function hideElement(element) {
+    if (element) element.hidden = true;
+  }
+
+  function showMessage(element, message) {
+    if (!element) return;
+    element.textContent = message;
+    showElement(element);
+  }
+
+  function clearMessage(element) {
+    if (!element) return;
+    element.textContent = "";
+    hideElement(element);
+  }
+
+  function showToast(message, duration = 3500) {
+    if (!elements.toastContainer) return;
+
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = String(message);
+    elements.toastContainer.appendChild(toast);
+
+    window.setTimeout(() => {
+      toast.classList.add("toast-out");
+      window.setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
+  function setButtonLoading(button, loading, loadingText = "Bitte warten …") {
+    if (!button) return;
+
+    if (loading) {
+      button.dataset.originalText = button.textContent;
+      button.textContent = loadingText;
+      button.disabled = true;
+    } else {
+      button.textContent =
+        button.dataset.originalText || button.textContent;
+      button.disabled = false;
+      delete button.dataset.originalText;
+    }
+  }
+
+  function escapeHTML(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getDisplayName(user) {
+    return (
+      user?.user_metadata?.display_name ||
+      user?.user_metadata?.name ||
+      user?.email?.split("@")[0] ||
+      "Void-Nutzer"
+    );
+  }
+
+  function openModal(modal) {
+    if (!modal) return;
+    showElement(modal);
+    document.body.classList.add("modal-open");
+  }
+
+  function closeModal(modal) {
+    if (!modal) return;
+    hideElement(modal);
+
+    const anotherModalOpen = [
+      elements.authModal,
+      elements.verifyModal,
+      elements.settingsModal,
+      elements.confirmModal
+    ].some(item => item && !item.hidden);
+
+    if (!anotherModalOpen) {
+      document.body.classList.remove("modal-open");
+    }
+  }
+
+  function openAuthModal(mode = "register") {
+    setAuthMode(mode);
+    clearMessage(elements.authError);
+    clearMessage(elements.authInfo);
+    openModal(elements.authModal);
+  }
+
+  function setAuthMode(mode) {
+    isRegisterMode = mode === "register";
+
+    elements.registerTab?.classList.toggle("active", isRegisterMode);
+    elements.loginTab?.classList.toggle("active", !isRegisterMode);
+
+    if (elements.authTitle) {
+      elements.authTitle.textContent = isRegisterMode
+        ? "Erstelle dein Konto"
+        : "Willkommen zurück";
+    }
+
+    if (elements.authDescription) {
+      elements.authDescription.textContent = isRegisterMode
+        ? "Registriere dich kostenlos und nutze Void AI."
+        : "Melde dich mit deiner E-Mail-Adresse an.";
+    }
+
+    if (elements.authSubmit) {
+      elements.authSubmit.textContent = isRegisterMode
+        ? "Konto erstellen"
+        : "Anmelden";
+    }
+
+    if (elements.authName) {
+      elements.authName.required = isRegisterMode;
+    }
+
+    if (elements.authPasswordConfirm) {
+      elements.authPasswordConfirm.required = isRegisterMode;
+    }
+
+    if (elements.confirmPasswordGroup) {
+      elements.confirmPasswordGroup.hidden = !isRegisterMode;
+    }
+
+    if (elements.authPassword) {
+      elements.authPassword.autocomplete = isRegisterMode
+        ? "new-password"
+        : "current-password";
+    }
+
+    if (elements.authPasswordConfirm) {
+      elements.authPasswordConfirm.value = "";
+    }
+
+    clearMessage(elements.authError);
+    clearMessage(elements.authInfo);
+  }
+
+  // =========================================================
+  // SUPABASE INITIALISIEREN
+  // =========================================================
+
+  function initializeSupabase() {
+    if (!window.supabase?.createClient) {
+      showToast("Supabase konnte nicht geladen werden.");
+      return false;
+    }
+
+    try {
+      supabaseClient = window.supabase.createClient(
+        CONFIG.SUPABASE_URL,
+        CONFIG.SUPABASE_KEY,
+        {
+          auth: {
+            autoRefreshToken: true,
+            persistSession: true,
+            detectSessionInUrl: true,
+            flowType: "pkce"
+          }
+        }
+      );
+
+      return true;
+    } catch (error) {
+      console.error("Supabase-Initialisierung fehlgeschlagen:", error);
+      showToast("Verbindung zu Supabase fehlgeschlagen.");
+      return false;
+    }
+  }
+
+  // =========================================================
+  // REGISTRIERUNG UND E-MAIL-BESTÄTIGUNG
+  // =========================================================
+
+  async function registerUser() {
+    const name = elements.authName.value.trim();
+    const email = elements.authEmail.value.trim();
+    const password = elements.authPassword.value;
+    const passwordConfirm = elements.authPasswordConfirm.value;
+
+    if (name.length < 2) {
+      showMessage(elements.authError, "Bitte gib deinen Namen ein.");
+      return;
+    }
+
+    if (!email || !elements.authEmail.checkValidity()) {
+      showMessage(
+        elements.authError,
+        "Bitte gib eine gültige E-Mail-Adresse ein."
+      );
+      return;
+    }
+
+    if (password.length < 8) {
+      showMessage(
+        elements.authError,
+        "Dein Passwort muss mindestens 8 Zeichen haben."
+      );
+      return;
+    }
+
+    if (password !== passwordConfirm) {
+      showMessage(
+        elements.authError,
+        "Die beiden Passwörter stimmen nicht überein."
+      );
+      return;
+    }
+
+    clearMessage(elements.authError);
+    clearMessage(elements.authInfo);
+    setButtonLoading(elements.authSubmit, true, "Konto wird erstellt …");
+
+    try {
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: name,
+            name: name
+          },
+          emailRedirectTo: CONFIG.REDIRECT_URL
+        }
+      });
+
+      if (error) throw error;
+
+      pendingVerificationEmail = email;
+      elements.verifyEmailPreview.textContent = email;
+
+      closeModal(elements.authModal);
+
+      if (data.session && data.user) {
+        currentUser = data.user;
+        await enterApp(data.user);
+        showToast("Dein Konto wurde erstellt!");
+      } else {
+        openModal(elements.verifyModal);
+        showToast("Prüfe dein E-Mail-Postfach.");
+      }
+    } catch (error) {
+      console.error("Registrierungsfehler:", error);
+
+      let message = error.message || "Registrierung fehlgeschlagen.";
+
+      if (/already registered|already exists/i.test(message)) {
+        message =
+          "Für diese E-Mail besteht möglicherweise bereits ein Konto. " +
+          "Versuche, dich anzumelden.";
+      } else if (/rate limit/i.test(message)) {
+        message =
+          "Zu viele Versuche. Warte bitte etwas und versuche es erneut.";
+      } else if (/password/i.test(message)) {
+        message =
+          "Das Passwort wurde nicht akzeptiert. Prüfe die Passwortregeln.";
+      }
+
+      showMessage(elements.authError, message);
+    } finally {
+      setButtonLoading(elements.authSubmit, false);
+    }
+  }
+
+  async function loginUser() {
+    const email = elements.authEmail.value.trim();
+    const password = elements.authPassword.value;
+
+    if (!email || !password) {
+      showMessage(
+        elements.authError,
+        "Gib deine E-Mail-Adresse und dein Passwort ein."
+      );
+      return;
+    }
+
+    clearMessage(elements.authError);
+    clearMessage(elements.authInfo);
+    setButtonLoading(elements.authSubmit, true, "Anmeldung läuft …");
+
+    try {
+      const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) {
+        if (/email not confirmed/i.test(error.message)) {
+          pendingVerificationEmail = email;
+          elements.verifyEmailPreview.textContent = email;
+          closeModal(elements.authModal);
+          openModal(elements.verifyModal);
+          showMessage(
+            elements.verifyInfo,
+            "Bitte bestätige zuerst deine E-Mail-Adresse."
+          );
+          return;
+        }
+
+        throw error;
+      }
+
+      closeModal(elements.authModal);
+
+      if (data.user) {
+        currentUser = data.user;
+        await enterApp(data.user);
+        showToast("Du bist angemeldet!");
+      }
+    } catch (error) {
+      console.error("Anmeldefehler:", error);
+
+      showMessage(
+        elements.authError,
+        "Anmeldung fehlgeschlagen. Prüfe E-Mail und Passwort."
+      );
+    } finally {
+      setButtonLoading(elements.authSubmit, false);
+    }
+  }
+
+  async function resendVerificationEmail() {
+    if (!pendingVerificationEmail) {
+      showMessage(
+        elements.verifyError,
+        "Gib zuerst deine E-Mail-Adresse ein."
+      );
+      return;
+    }
+
+    clearMessage(elements.verifyError);
+    clearMessage(elements.verifyInfo);
+
+    setButtonLoading(
+      elements.resendVerificationBtn,
+      true,
+      "Wird gesendet …"
+    );
+
+    try {
+      const { error } = await supabaseClient.auth.resend({
+        type: "signup",
+        email: pendingVerificationEmail,
+        options: {
+          emailRedirectTo: CONFIG.REDIRECT_URL
+        }
+      });
+
+      if (error) throw error;
+
+      showMessage(
+        elements.verifyInfo,
+        "Die Anfrage wurde gesendet. Prüfe deinen Posteingang und Spam-Ordner."
+      );
+    } catch (error) {
+      console.error("Fehler beim erneuten Senden:", error);
+
+      showMessage(
+        elements.verifyError,
+        "Die E-Mail konnte nicht erneut angefordert werden. " +
+        "Warte etwas und versuche es später noch einmal."
+      );
+    } finally {
+      setButtonLoading(elements.resendVerificationBtn, false);
+    }
+  }
+
+  // =========================================================
+  // BENUTZEROBERFLÄCHE NACH DER ANMELDUNG
+  // =========================================================
+
+  async function enterApp(user) {
+    currentUser = user;
+
+    const name = getDisplayName(user);
+
+    if (elements.userName) {
+      elements.userName.textContent = name;
+    }
+
+    if (elements.userEmail) {
+      elements.userEmail.textContent = user.email || "";
+    }
+
+    if (elements.userAvatar) {
+      elements.userAvatar.textContent =
+        name.charAt(0).toUpperCase();
+    }
+
+    if (elements.settingsAccountEmail) {
+      elements.settingsAccountEmail.textContent =
+        user.email || "Keine E-Mail-Adresse";
+    }
+
+    closeModal(elements.authModal);
+    closeModal(elements.verifyModal);
+
+    loadChats();
+    renderChatHistory();
+
+    showToast("Willkommen bei Void AI!");
+  }
+
+  async function logoutUser() {
+    if (!supabaseClient) return;
+
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      console.error("Abmeldefehler:", error);
+      showToast("Abmelden fehlgeschlagen.");
+      return;
+    }
+
+    currentUser = null;
+    currentChatId = null;
+    chats = [];
+
+    if (elements.userName) elements.userName.textContent = "Gast";
+    if (elements.userEmail) {
+      elements.userEmail.textContent = "Nicht angemeldet";
+    }
+
+    if (elements.userAvatar) elements.userAvatar.textContent = "V";
+
+    renderChatHistory();
+    showWelcomeScreen();
+    closeModal(elements.settingsModal);
+    openAuthModal("login");
+  }
+
+  // =========================================================
+  // CHATVERLAUF SPEICHERN
+  // =========================================================
+
+  function loadChats() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const parsed = stored ? JSON.parse(stored) : [];
+
+      chats = Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.warn("Chatverlauf konnte nicht gelesen werden:", error);
+      chats = [];
+    }
+  }
+
+  function saveChats() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
+    } catch (error) {
+      console.warn("Chatverlauf konnte nicht gespeichert werden:", error);
+      showToast("Chatverlauf konnte nicht gespeichert werden.");
+    }
+  }
+
+  function createNewChat() {
+    const chat = {
+      id: crypto.randomUUID
+        ? crypto.randomUUID()
+        : String(Date.now()) + Math.random().toString(36).slice(2),
+      title: "Neuer Chat",
+      messages: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    chats.unshift(chat);
+    currentChatId = chat.id;
+
+    saveChats();
+    renderChatHistory();
+    renderMessages();
+    showConversation();
+
+    elements.messageInput?.focus();
+  }
+
+  function getCurrentChat() {
+    return chats.find(chat => chat.id === currentChatId) || null;
+  }
+
+  function renderChatHistory() {
+    if (!elements.chatHistory) return;
+
+    elements.chatHistory.replaceChildren();
+
+    chats.forEach(chat => {
+      const item = document.createElement("button");
+      item.className = "history-item";
+
+      if (chat.id === currentChatId) {
+        item.classList.add("active");
+      }
+
+      const icon = document.createElement("span");
+      icon.className = "history-icon";
+      icon.textContent = "▱";
+
+      const title = document.createElement("span");
+      title.className = "history-title";
+      title.textContent = chat.title || "Neuer Chat";
+
+      item.append(icon, title);
+
+      item.addEventListener("click", () => {
+        currentChatId = chat.id;
+        renderChatHistory();
+        renderMessages();
+        showConversation();
+
+        if (window.innerWidth < 760) {
+          elements.sidebar?.classList.remove("sidebar-open");
+        }
+      });
+
+      elements.chatHistory.appendChild(item);
+    });
+  }
+
+  function showWelcomeScreen() {
+    showElement(elements.welcomeScreen);
+    hideElement(elements.conversation);
+  }
+
+  function showConversation() {
+    hideElement(elements.welcomeScreen);
+    showElement(elements.conversation);
+  }
+
+  // =========================================================
+  // NACHRICHTEN DARSTELLEN
+  // =========================================================
+
+  function renderMessages() {
+    if (!elements.messages) return;
+
+    elements.messages.replaceChildren();
+
+    const chat = getCurrentChat();
+
+    if (!chat || !chat.messages.length) {
+      showWelcomeScreen();
+      return;
+    }
+
+    chat.messages.forEach(message => {
+      appendMessageToDOM(message.role, message.content);
+    });
+
+    showConversation();
+    scrollToBottom();
+  }
+
+  function appendMessageToDOM(role, content) {
+    const wrapper = document.createElement("article");
+    wrapper.className = "message message-" + role;
+
+    const avatar = document.createElement("div");
+    avatar.className = "message-avatar";
+    avatar.textContent = role === "user" ? "Du" : "V";
+
+    const body = document.createElement("div");
+    body.className = "message-body";
+
+    const heading = document.createElement("div");
+    heading.className = "message-heading";
+    heading.textContent = role === "user" ? "Du" : "Void AI";
+
+    const text = document.createElement("div");
+    text.className = "message-content";
+    text.textContent = content;
+
+    body.append(heading, text);
+    wrapper.append(avatar, body);
+    elements.messages.appendChild(wrapper);
+
+    return wrapper;
+  }
+
+  function scrollToBottom() {
+    if (!elements.messages) return;
+
+    requestAnimationFrame(() => {
+      elements.messages.scrollTop = elements.messages.scrollHeight;
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth"
+      });
+    });
+  }
+
+  function setChatTitle(chat, firstMessage) {
+    if (!chat || chat.title !== "Neuer Chat") return;
+
+    const clean = firstMessage.trim().replace(/\s+/g, " ");
+    chat.title = clean.length > 32
+      ? clean.slice(0, 32) + "…"
+      : clean || "Neuer Chat";
+
+    renderChatHistory();
+  }
+
+  // =========================================================
+  // TEIL 3 ENDE
+  // =========================================================
+  </script>
+<script>
+  // =========================================================
+  // KI-NACHRICHTEN SENDEN
+  // =========================================================
+
+  async function sendMessage(text) {
+    const message = String(text || "").trim();
+
+    if (!message || isSending) return;
+
+    if (!currentUser) {
+      showToast("Bitte melde dich zuerst an.");
+      openAuthModal("login");
+      return;
+    }
+
+    if (!currentChatId || !getCurrentChat()) {
+      createNewChat();
+    }
+
+    const chat = getCurrentChat();
+    if (!chat) {
+      showToast("Der Chat konnte nicht erstellt werden.");
+      return;
+    }
+
+    isSending = true;
+    elements.sendBtn.disabled = true;
+    elements.messageInput.disabled = true;
+
+    chat.messages.push({
+      role: "user",
+      content: message,
+      createdAt: new Date().toISOString()
+    });
+
+    setChatTitle(chat, message);
+    chat.updatedAt = new Date().toISOString();
+    saveChats();
+    renderMessages();
+    renderChatHistory();
+
+    elements.messageInput.value = "";
+    elements.messageInput.style.height = "auto";
+
+    const assistantMessage = appendMessageToDOM("assistant", "Void AI denkt nach …");
+    assistantMessage.classList.add("message-loading");
+
+    try {
+      const response = await fetch(CONFIG.AI_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message,
+          messages: chat.messages
+            .filter(item => item.role === "user" || item.role === "assistant")
+            .slice(-20)
+            .map(item => ({
+              role: item.role,
+              content: item.content
+            }))
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("KI-Server antwortet mit HTTP " + response.status);
+      }
+
+      const data = await response.json();
+
+      const answer =
+        data.reply ||
+        data.response ||
+        data.answer ||
+        data.message ||
+        data.content;
+
+      if (typeof answer !== "string" || !answer.trim()) {
+        throw new Error("Der KI-Server hat keine Antwort geliefert.");
+      }
+
+      const finalAnswer = answer.trim();
+
+      chat.messages.push({
+        role: "assistant",
+        content: finalAnswer,
+        createdAt: new Date().toISOString()
+      });
+
+      chat.updatedAt = new Date().toISOString();
+      saveChats();
+
+      renderMessages();
+      renderChatHistory();
+    } catch (error) {
+      console.error("Fehler bei der KI-Anfrage:", error);
+
+      const errorText =
+        "Entschuldigung, ich konnte gerade keine Antwort erhalten. " +
+        "Prüfe deine Internetverbindung und versuche es erneut.";
+
+      chat.messages.push({
+        role: "assistant",
+        content: errorText,
+        createdAt: new Date().toISOString()
+      });
+
+      saveChats();
+      renderMessages();
+
+      showToast("Die Verbindung zu Void AI ist fehlgeschlagen.");
+    } finally {
+      isSending = false;
+      elements.sendBtn.disabled = false;
+      elements.messageInput.disabled = false;
+      elements.messageInput.focus();
+    }
+  }
+
+  // =========================================================
+  // MIKROFON UND SPRACHEINGABE
+  // =========================================================
+
+  function initializeSpeechRecognition() {
+    const SpeechRecognitionAPI =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!SpeechRecognitionAPI) {
+      elements.micBtn.disabled = true;
+      elements.micBtn.title =
+        "Spracheingabe wird von diesem Browser nicht unterstützt.";
+      return;
+    }
+
+    speechRecognition = new SpeechRecognitionAPI();
+    speechRecognition.lang = "de-DE";
+    speechRecognition.continuous = false;
+    speechRecognition.interimResults = true;
+    speechRecognition.maxAlternatives = 1;
+
+    speechRecognition.onstart = () => {
+      isListening = true;
+      elements.micBtn.classList.add("mic-active");
+      elements.micIcon.textContent = "⏹";
+      showElement(elements.micStatus);
+    };
+
+    speechRecognition.onresult = event => {
+      let transcript = "";
+      let finalTranscript = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        transcript += result[0].transcript;
+
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript;
+        }
+      }
+
+      if (transcript && elements.messageInput) {
+        elements.messageInput.value = transcript;
+        elements.messageInput.style.height = "auto";
+        elements.messageInput.style.height =
+          Math.min(elements.messageInput.scrollHeight, 180) + "px";
+      }
+
+      if (finalTranscript.trim()) {
+        elements.messageInput.value = finalTranscript.trim();
+      }
+    };
+
+    speechRecognition.onerror = event => {
+      console.warn("Mikrofonfehler:", event.error);
+
+      if (event.error === "not-allowed") {
+        showToast("Bitte erlaube den Mikrofonzugriff im Browser.");
+      } else if (event.error !== "no-speech" && event.error !== "aborted") {
+        showToast("Die Spracheingabe ist fehlgeschlagen.");
+      }
+    };
+
+    speechRecognition.onend = () => {
+      isListening = false;
+      elements.micBtn.classList.remove("mic-active");
+      elements.micIcon.textContent = "🎙";
+      hideElement(elements.micStatus);
+    };
+  }
+
+  function toggleMicrophone() {
+    if (!speechRecognition) {
+      showToast("Spracheingabe wird nicht unterstützt.");
+      return;
+    }
+
+    if (isListening) {
+      speechRecognition.stop();
+      return;
+    }
+
+    try {
+      speechRecognition.lang =
+        elements.speechLanguage?.value || "de-DE";
+
+      speechRecognition.start();
+    } catch (error) {
+      console.warn("Mikrofon konnte nicht gestartet werden:", error);
+      showToast("Mikrofon konnte nicht gestartet werden.");
+    }
+  }
+
+  // =========================================================
+  // EINSTELLUNGEN
+  // =========================================================
+
+  function loadSettings() {
+    try {
+      const settings = JSON.parse(
+        localStorage.getItem(USER_SETTINGS_KEY) || "{}"
+      );
+
+      if (settings.speechLanguage && elements.speechLanguage) {
+        elements.speechLanguage.value = settings.speechLanguage;
+      }
+    } catch (error) {
+      console.warn("Einstellungen konnten nicht geladen werden:", error);
+    }
+  }
+
+  function saveSettings() {
+    const settings = {
+      speechLanguage: elements.speechLanguage?.value || "de-DE"
+    };
+
+    try {
+      localStorage.setItem(USER_SETTINGS_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.warn("Einstellungen konnten nicht gespeichert werden:", error);
+    }
+  }
+
+  // =========================================================
+  // BESTÄTIGUNGSDIALOG
+  // =========================================================
+
+  function askConfirmation(title, message, callback) {
+    elements.confirmTitle.textContent = title;
+    elements.confirmMessage.textContent = message;
+    confirmationCallback = callback;
+    openModal(elements.confirmModal);
+  }
+
+  function closeConfirmation() {
+    closeModal(elements.confirmModal);
+    confirmationCallback = null;
+  }
+
+  function acceptConfirmation() {
+    const callback = confirmationCallback;
+    closeConfirmation();
+
+    if (typeof callback === "function") {
+      callback();
+    }
+  }
+
+  // =========================================================
+  // CHATVERLAUF LÖSCHEN
+  // =========================================================
+
+  function clearChatHistory() {
+    askConfirmation(
+      "Chatverlauf löschen?",
+      "Möchtest du alle gespeicherten Chats auf diesem Gerät löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.",
+      () => {
+        chats = [];
+        currentChatId = null;
+
+        saveChats();
+        renderChatHistory();
+        renderMessages();
+        showWelcomeScreen();
+
+        showToast("Chatverlauf wurde gelöscht.");
+      }
+    );
+  }
+
+  // =========================================================
+  // CHAT NEU STARTEN
+  // =========================================================
+
+  function startNewChat() {
+    if (isSending) {
+      showToast("Warte bitte, bis die aktuelle Antwort fertig ist.");
+      return;
+    }
+
+    createNewChat();
+  }
+
+  // =========================================================
+  // TASTATURSTEUERUNG
+  // =========================================================
+
+  function handleMessageKeydown(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage(elements.messageInput.value);
+    }
+  }
+
+  // =========================================================
+  // EREIGNISSE VERBINDEN
+  // =========================================================
+
+  function bindEvents() {
+    elements.registerTab?.addEventListener("click", () => {
+      setAuthMode("register");
+    });
+
+    elements.loginTab?.addEventListener("click", () => {
+      setAuthMode("login");
+    });
+
+    elements.authForm?.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      if (!supabaseClient) {
+        showMessage(
+          elements.authError,
+          "Die Anmeldung ist momentan nicht verfügbar."
+        );
+        return;
+      }
+
+      if (isRegisterMode) {
+        await registerUser();
+      } else {
+        await loginUser();
+      }
+    });
+
+    elements.closeAuthModal?.addEventListener("click", () => {
+      closeModal(elements.authModal);
+    });
+
+    elements.resendVerificationBtn?.addEventListener(
+      "click",
+      resendVerificationEmail
+    );
+
+    elements.backToAuthBtn?.addEventListener("click", () => {
+      closeModal(elements.verifyModal);
+      openAuthModal("login");
+      elements.authEmail.value = pendingVerificationEmail;
+    });
+
+    elements.newChatBtn?.addEventListener("click", startNewChat);
+
+    elements.sendBtn?.addEventListener("click", () => {
+      sendMessage(elements.messageInput.value);
+    });
+
+    elements.messageInput?.addEventListener(
+      "keydown",
+      handleMessageKeydown
+    );
+
+    elements.messageInput?.addEventListener("input", () => {
+      elements.messageInput.style.height = "auto";
+      elements.messageInput.style.height =
+        Math.min(elements.messageInput.scrollHeight, 180) + "px";
+    });
+
+    elements.micBtn?.addEventListener("click", toggleMicrophone);
+
+    document.querySelectorAll("[data-prompt]").forEach(button => {
+      button.addEventListener("click", () => {
+        const prompt = button.getAttribute("data-prompt");
+
+        if (!currentUser) {
+          openAuthModal("login");
+          showMessage(
+            elements.authInfo,
+            "Melde dich an, um Void AI zu benutzen."
+          );
+          return;
+        }
+
+        sendMessage(prompt);
+      });
+    });
+
+    elements.openSidebar?.addEventListener("click", () => {
+      elements.sidebar?.classList.toggle("sidebar-open");
+    });
+
+    elements.closeSidebar?.addEventListener("click", () => {
+      elements.sidebar?.classList.remove("sidebar-open");
+    });
+
+    elements.settingsBtn?.addEventListener("click", () => {
+      if (currentUser) {
+        openModal(elements.settingsModal);
+      } else {
+        openAuthModal("login");
+      }
+    });
+
+    elements.closeSettingsModal?.addEventListener("click", () => {
+      closeModal(elements.settingsModal);
+    });
+
+    elements.logoutBtn?.addEventListener("click", logoutUser);
+
+    elements.clearHistoryBtn?.addEventListener(
+      "click",
+      clearChatHistory
+    );
+
+    elements.speechLanguage?.addEventListener("change", saveSettings);
+
+    elements.confirmCancel?.addEventListener(
+      "click",
+      closeConfirmation
+    );
+
+    elements.confirmAccept?.addEventListener(
+      "click",
+      acceptConfirmation
+    );
+
+    elements.accountMenuBtn?.addEventListener("click", () => {
+      if (!currentUser) {
+        openAuthModal("login");
+        return;
+      }
+
+      openModal(elements.settingsModal);
+    });
+
+    elements.userCard?.addEventListener("click", event => {
+      if (event.target === elements.accountMenuBtn) return;
+
+      if (currentUser) {
+        openModal(elements.settingsModal);
+      } else {
+        openAuthModal("login");
+      }
+    });
+
+    [elements.authModal, elements.verifyModal,
+     elements.settingsModal, elements.confirmModal].forEach(modal => {
+      modal?.addEventListener("click", event => {
+        if (event.target === modal) {
+          closeModal(modal);
+        }
+      });
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        closeModal(elements.authModal);
+        closeModal(elements.verifyModal);
+        closeModal(elements.settingsModal);
+        closeConfirmation();
+      }
+    });
+  }
+
+  // =========================================================
+  // TEIL 4 ENDE
+  // =========================================================
+</script>
+<script>
+  // =========================================================
+  // ANMELDUNGSSTATUS UND E-MAIL-BESTÄTIGUNG
+  // =========================================================
+
+  let authListener = null;
+  let initialSessionChecked = false;
+
+  async function checkInitialSession() {
+    if (!supabaseClient) {
+      openAuthModal("register");
+      return;
+    }
+
+    try {
+      const { data, error } =
+        await supabaseClient.auth.getSession();
+
+      if (error) throw error;
+
+      const session = data.session;
+
+      if (session && session.user) {
+        currentUser = session.user;
+        await enterApp(session.user);
+      } else {
+        currentUser = null;
+        openAuthModal("register");
+      }
+    } catch (error) {
+      console.error("Sitzungsprüfung fehlgeschlagen:", error);
+      openAuthModal("register");
+      showToast("Bitte versuche, dich erneut anzumelden.");
+    } finally {
+      initialSessionChecked = true;
+    }
+  }
+
+  function listenForAuthChanges() {
+    if (!supabaseClient) return;
+
+    const result = supabaseClient.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log("Authentifizierungsereignis:", event);
+
+        if (event === "SIGNED_OUT") {
+          currentUser = null;
+          currentChatId = null;
+          chats = [];
+
+          if (elements.userName) {
+            elements.userName.textContent = "Gast";
+          }
+
+          if (elements.userEmail) {
+            elements.userEmail.textContent = "Nicht angemeldet";
+          }
+
+          if (elements.userAvatar) {
+            elements.userAvatar.textContent = "V";
+          }
+
+          renderChatHistory();
+          showWelcomeScreen();
+          return;
+        }
+
+        if (
+          session &&
+          session.user &&
+          (
+            event === "SIGNED_IN" ||
+            event === "INITIAL_SESSION" ||
+            event === "USER_UPDATED"
+          )
+        ) {
+          currentUser = session.user;
+
+          closeModal(elements.authModal);
+          closeModal(elements.verifyModal);
+
+          if (initialSessionChecked || event !== "INITIAL_SESSION") {
+            await enterApp(session.user);
+          }
+        }
+      }
+    );
+
+    authListener = result.data.subscription;
+  }
+
+  // =========================================================
+  // RÜCKKEHR NACH DER E-MAIL-BESTÄTIGUNG
+  // =========================================================
+
+  function cleanAuthUrl() {
+    try {
+      const url = new URL(window.location.href);
+
+      const hasAuthParameters =
+        url.searchParams.has("code") ||
+        url.hash.includes("access_token=") ||
+        url.hash.includes("error_description=");
+
+      if (!hasAuthParameters) return;
+
+      /*
+       * Supabase verarbeitet den Bestätigungslink.
+       * Nach der Rückkehr entfernen wir Auth-Parameter
+       * aus der sichtbaren URL.
+       */
+      if (url.searchParams.has("code")) {
+        url.searchParams.delete("code");
+        window.history.replaceState(
+          {},
+          document.title,
+          url.pathname + url.search + url.hash
+        );
+      }
+    } catch (error) {
+      console.warn("Die Auth-URL konnte nicht bereinigt werden:", error);
+    }
+  }
+
+  function checkAuthErrorInUrl() {
+    try {
+      const hash = window.location.hash;
+
+      if (!hash || !hash.includes("error")) return;
+
+      const params = new URLSearchParams(hash.replace(/^#/, ""));
+      const description = params.get("error_description");
+
+      if (description) {
+        showToast(
+          "E-Mail-Bestätigung fehlgeschlagen. Öffne einen neuen Bestätigungslink."
+        );
+        console.warn("Supabase-Fehler:", description);
+      }
+    } catch (error) {
+      console.warn("Fehler beim Lesen der Rückgabe-URL:", error);
+    }
+  }
+
+  // =========================================================
+  // APP STARTEN
+  // =========================================================
+
+  async function initializeVoidAI() {
+    console.log("Void AI wird gestartet …");
+
+    bindEvents();
+    loadSettings();
+    initializeSpeechRecognition();
+
+    checkAuthErrorInUrl();
+
+    const supabaseReady = initializeSupabase();
+
+    if (!supabaseReady) {
+      openAuthModal("register");
+      return;
+    }
+
+    listenForAuthChanges();
+
+    await checkInitialSession();
+
+    cleanAuthUrl();
+
+    console.log("Void AI wurde initialisiert.");
+  }
+
+  // =========================================================
+  // FEHLERBEHANDLUNG
+  // =========================================================
+
+  window.addEventListener("online", () => {
+    showToast("Internetverbindung wiederhergestellt.");
+  });
+
+  window.addEventListener("offline", () => {
+    showToast("Du bist offline. KI-Antworten sind nicht verfügbar.");
+  });
+
+  window.addEventListener("unhandledrejection", event => {
+    console.error("Nicht behandelter Fehler:", event.reason);
+  });
+
+  // =========================================================
+  // START
+  // =========================================================
+
+  if (document.readyState === "loading") {
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeVoidAI,
+      { once: true }
+    );
+  } else {
+    initializeVoidAI();
+  }
+
+  // =========================================================
+  // ENDE VON VOID AI
+  // =========================================================
+</script>
+</body>
+</html>

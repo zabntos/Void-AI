@@ -3,164 +3,384 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#10091c">
-<title>Void AI – Konto</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0614">
+<title>Void AI</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+:root{
+ --bg:#090610;
+ --panel:#130d1d;
+ --panel2:#1c1228;
+ --purple:#a855f7;
+ --pink:#d946ef;
+ --text:#f8f4ff;
+ --muted:#ad9cbe;
+ --border:#382548;
+}
 *{box-sizing:border-box}
 body{
- margin:0;min-height:100vh;display:flex;align-items:center;
- justify-content:center;padding:20px;color:#fff;
- font-family:Arial,sans-serif;
- background:radial-gradient(ellipse at top,#542080,#10091c 55%,#07050d);
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Arial,Helvetica,sans-serif;min-height:100vh;
 }
-.card{
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.hidden{display:none!important}
+
+/* Hintergrund */
+.glow{
+ position:fixed;width:340px;height:340px;border-radius:50%;
+ filter:blur(100px);opacity:.15;pointer-events:none;z-index:-1;
+ background:#9b36f5;top:-100px;left:10%;
+}
+.glow2{
+ position:fixed;width:300px;height:300px;border-radius:50%;
+ filter:blur(100px);opacity:.12;pointer-events:none;z-index:-1;
+ background:#e13cf2;bottom:-100px;right:0;
+}
+
+/* Anmeldung */
+.auth-wrap{
+ min-height:100vh;display:flex;align-items:center;
+ justify-content:center;padding:20px;
+}
+.auth-card{
  width:100%;max-width:430px;padding:30px;
- background:#171020;border:1px solid #7135a5;border-radius:22px;
- box-shadow:0 20px 80px #0008;
+ border:1px solid #573775;border-radius:24px;
+ background:rgba(22,14,32,.96);
+ box-shadow:0 25px 90px #0008;
 }
-.logo{
- text-align:center;font-size:38px;font-weight:900;
- background:linear-gradient(90deg,#c084fc,#f0abfc);
- color:transparent;background-clip:text;margin-bottom:8px;
+.brand{
+ text-align:center;font-size:39px;font-weight:900;
+ letter-spacing:2px;margin:0 0 8px;
+ background:linear-gradient(100deg,#c084fc,#f0abfc);
+ color:transparent;background-clip:text;
 }
-.subtitle{text-align:center;color:#c4b5d5;margin-bottom:24px}
+.subtitle{text-align:center;color:var(--muted);margin-bottom:25px}
 .tabs{display:flex;gap:8px;margin-bottom:20px}
-.tabs button,.submit{
- padding:13px;border:0;border-radius:10px;
- background:#2b1b3b;color:white;font-weight:bold;cursor:pointer;
+.tabs button{
+ flex:1;border:1px solid var(--border);border-radius:11px;
+ background:#21162e;color:#cbb9dc;padding:13px;
 }
-.tabs button{flex:1}
-.tabs button.active,.submit{
+.tabs button.active{
  background:linear-gradient(100deg,#9333ea,#c026d3);
+ color:white;border-color:transparent;
 }
-label{display:block;margin:15px 0 7px;font-size:14px}
-input{
- width:100%;padding:14px;border-radius:10px;
- border:1px solid #49365c;background:#0d0913;color:white;
- outline:none;font-size:16px;
+label{display:block;font-size:14px;margin:15px 0 7px}
+input,textarea{
+ width:100%;border:1px solid #49365c;border-radius:11px;
+ background:#0c0812;color:white;padding:14px;outline:none;
 }
-input:focus{border-color:#c084fc}
-.submit{width:100%;margin-top:22px;font-size:16px}
-button:disabled{opacity:.6;cursor:wait}
-#message{
- margin-top:16px;padding:12px;border-radius:9px;
+input:focus,textarea:focus{border-color:#c084fc}
+.primary{
+ border:0;border-radius:11px;color:white;font-weight:bold;
+ background:linear-gradient(100deg,#9333ea,#c026d3);
+ padding:14px;
+}
+.auth-submit{width:100%;margin-top:22px}
+#authMessage,#chatNotice{
+ padding:12px;border-radius:10px;margin-top:16px;
  font-size:14px;line-height:1.5;overflow-wrap:anywhere;
 }
-.error{background:#541b2c;color:#fecdd3}
+.error{background:#4b1828;color:#fecdd3}
 .success{background:#173d2a;color:#bbf7d0}
 .info{background:#29203b;color:#e9d5ff}
-.hint{font-size:12px;color:#c4b5d5;margin-top:8px}
-[hidden]{display:none!important}
-.footer{text-align:center;color:#9e8caf;font-size:12px;margin-top:20px}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.auth-footer{text-align:center;margin-top:20px}
+
+/* Chat */
+.app{
+ min-height:100vh;display:flex;flex-direction:column;
+ max-width:1100px;margin:auto;padding:0 18px;
+}
+.topbar{
+ min-height:72px;display:flex;align-items:center;
+ justify-content:space-between;gap:12px;
+ border-bottom:1px solid #281a35;
+}
+.topbrand{font-size:23px;font-weight:900;letter-spacing:1px}
+.topbrand span{
+ background:linear-gradient(90deg,#c084fc,#e879f9);
+ color:transparent;background-clip:text;
+}
+.top-actions{display:flex;gap:8px;align-items:center}
+.ghost{
+ background:#1a1125;border:1px solid var(--border);
+ border-radius:10px;color:#e9d5ff;padding:10px 12px;
+}
+.user-label{font-size:12px;color:var(--muted);max-width:170px;overflow-wrap:anywhere}
+.chat-main{
+ flex:1;display:flex;flex-direction:column;
+ width:100%;max-width:850px;margin:0 auto;
+}
+.welcome{text-align:center;padding:35px 12px 25px}
+.orb{
+ width:92px;height:92px;border-radius:50%;margin:0 auto 20px;
+ background:radial-gradient(circle at 30% 25%,#f5d0fe,#b64aff 35%,#6421b5 65%,#170a2d);
+ box-shadow:0 0 30px #a855f777,0 0 75px #a855f733;
+ animation:float 4s ease-in-out infinite;
+}
+@keyframes float{
+ 0%,100%{transform:translateY(0) scale(1)}
+ 50%{transform:translateY(-7px) scale(1.04)}
+}
+.welcome h1{font-size:clamp(25px,5vw,38px);margin:0 0 12px}
+.gradient-text{
+ background:linear-gradient(90deg,#c084fc,#f0abfc);
+ color:transparent;background-clip:text;
+}
+.welcome p{color:var(--muted);line-height:1.6;margin:0}
+.suggestions{
+ display:flex;flex-wrap:wrap;justify-content:center;
+ gap:9px;margin-top:22px;
+}
+.suggestion{
+ background:#181021;border:1px solid var(--border);
+ border-radius:20px;color:#ddc9f4;padding:10px 13px;
+}
+.messages{
+ display:flex;flex-direction:column;gap:18px;
+ padding:10px 0 25px;
+}
+.message-row{display:flex;gap:10px;align-items:flex-start}
+.message-row.user{justify-content:flex-end}
+.avatar{
+ flex:0 0 32px;height:32px;border-radius:11px;
+ display:grid;place-items:center;font-size:13px;font-weight:bold;
+ background:#352047;color:#e9d5ff;
+}
+.message-row.user .avatar{
+ order:2;background:linear-gradient(135deg,#9333ea,#c026d3);color:white;
+}
+.bubble{
+ max-width:min(78%,680px);padding:13px 15px;border-radius:15px;
+ line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.assistant .bubble{
+ background:#171020;border:1px solid #30203f;border-top-left-radius:4px;
+}
+.user .bubble{
+ background:#38204e;border:1px solid #5c3379;border-top-right-radius:4px;
+}
+.message-actions{margin-top:8px}
+.copy-btn{
+ background:transparent;border:0;color:#bda4d6;font-size:12px;padding:4px;
+}
+.typing{color:#c4b5d5;font-size:14px;padding:8px}
+.composer-area{
+ position:sticky;bottom:0;padding:14px 0 18px;
+ background:linear-gradient(transparent,var(--bg) 20%);
+}
+.composer{
+ display:flex;align-items:flex-end;gap:9px;
+ border:1px solid #4b315f;background:#15101e;
+ border-radius:17px;padding:9px;
+ box-shadow:0 10px 40px #0005;
+}
+#chatInput{
+ flex:1;min-width:0;resize:none;border:0;background:transparent;
+ padding:10px;color:white;max-height:160px;line-height:1.5;
+}
+#chatInput:focus{border:0}
+.send{
+ width:44px;height:44px;flex:0 0 44px;border:0;
+ border-radius:12px;color:white;font-size:20px;
+ background:linear-gradient(135deg,#9333ea,#c026d3);
+}
+.composer-help{text-align:center;font-size:11px;color:#786886;margin-top:10px}
+@media(max-width:520px){
+ .auth-card{padding:23px}
+ .app{padding:0 12px}
+ .topbar{min-height:64px}
+ .topbrand{font-size:20px}
+ .user-label{display:none}
+ .welcome{padding-top:30px}
+ .bubble{max-width:85%}
+ .orb{width:76px;height:76px}
+}
 </style>
 </head>
 
 <body>
-<main class="card">
- <div class="logo">VOID AI</div>
- <div class="subtitle" id="subtitle">Erstelle dein kostenloses Konto</div>
+<div class="glow"></div>
+<div class="glow2"></div>
 
- <div class="tabs">
-  <button type="button" id="registerTab" class="active">Registrieren</button>
-  <button type="button" id="loginTab">Anmelden</button>
- </div>
-
- <form id="authForm">
-  <div id="nameGroup">
-   <label for="name">Name</label>
-   <input id="name" type="text" autocomplete="name"
-    placeholder="Dein Name" required>
+<!-- AUTH -->
+<section class="auth-wrap" id="authScreen">
+ <div class="auth-card">
+  <div class="brand">VOID AI</div>
+  <div class="subtitle" id="authSubtitle">
+   Deine KI. Dein Raum. Kostenlos starten.
   </div>
 
-  <label for="email">E-Mail-Adresse</label>
-  <input id="email" type="email" autocomplete="email"
-   placeholder="name@beispiel.de" required>
-
-  <label for="password">Passwort</label>
-  <input id="password" type="password" minlength="8"
-   autocomplete="new-password" placeholder="Mindestens 8 Zeichen" required>
-
-  <div id="confirmGroup">
-   <label for="confirmPassword">Passwort bestätigen</label>
-   <input id="confirmPassword" type="password" minlength="8"
-    autocomplete="new-password" placeholder="Passwort wiederholen" required>
-   <div class="hint" id="passwordHint">Beide Passwörter müssen gleich sein.</div>
+  <div class="tabs">
+   <button type="button" id="registerTab" class="active">Registrieren</button>
+   <button type="button" id="loginTab">Anmelden</button>
   </div>
 
-  <button class="submit" id="submitButton" type="submit">
-   Konto erstellen
-  </button>
- </form>
+  <form id="authForm">
+   <div id="nameGroup">
+    <label for="name">Name</label>
+    <input id="name" type="text" placeholder="Dein Name"
+     autocomplete="name" required>
+   </div>
 
- <div id="message" class="info" role="status" aria-live="polite">
-  Verbindung wird vorbereitet …
+   <label for="email">E-Mail-Adresse</label>
+   <input id="email" type="email" placeholder="name@beispiel.de"
+    autocomplete="email" required>
+
+   <label for="password">Passwort</label>
+   <input id="password" type="password" minlength="8"
+    placeholder="Mindestens 8 Zeichen"
+    autocomplete="new-password" required>
+
+   <div id="confirmGroup">
+    <label for="confirmPassword">Passwort bestätigen</label>
+    <input id="confirmPassword" type="password" minlength="8"
+     placeholder="Passwort wiederholen"
+     autocomplete="new-password" required>
+    <div id="passwordHint" class="small">
+     Beide Passwörter müssen gleich sein.
+    </div>
+   </div>
+
+   <button type="submit" class="primary auth-submit" id="authSubmit">
+    Konto erstellen
+   </button>
+  </form>
+
+  <div id="authMessage" class="info" role="status" aria-live="polite">
+   Verbindung wird vorbereitet …
+  </div>
+
+  <div class="auth-footer small">
+   Deine E-Mail-Adresse wird für dein Konto verwendet.
+  </div>
  </div>
- <div class="footer">Void AI · Dein Konto</div>
-</main>
+</section>
 
-<script type="module">
-import { createClient } from
- "https://esm.sh/@supabase/supabase-js@2";
+<!-- AI CHAT -->
+<section id="chatScreen" class="app hidden">
+ <header class="topbar">
+  <div class="topbrand"><span>VOID AI</span></div>
+  <div class="top-actions">
+   <span id="userLabel" class="user-label"></span>
+   <button type="button" id="newChat" class="ghost">＋ Neu</button>
+   <button type="button" id="logoutButton" class="ghost">Abmelden</button>
+  </div>
+ </header>
 
-const SUPABASE_URL =
- "https://onewdrztvuffzxdnqmvi.supabase.co";
+ <main class="chat-main">
+  <div id="welcome" class="welcome">
+   <div class="orb"></div>
+   <h1>Was möchtest du <span class="gradient-text">wissen?</span></h1>
+   <p>Schreib Void AI eine Nachricht. Ich helfe dir bei Fragen,<br>
+   Ideen, Erklärungen und vielem mehr.</p>
+   <div class="suggestions">
+    <button type="button" class="suggestion">Erkläre mir etwas Neues</button>
+    <button type="button" class="suggestion">Hilf mir beim Programmieren</button>
+    <button type="button" class="suggestion">Gib mir kreative Ideen</button>
+   </div>
+  </div>
 
-const SUPABASE_KEY =
- "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA";
+  <div id="messages" class="messages"></div>
+  <div id="typing" class="typing hidden">Void AI denkt nach …</div>
+
+  <div id="chatNotice" class="info hidden" role="status"></div>
+
+  <div class="composer-area">
+   <form id="chatForm" class="composer">
+    <textarea id="chatInput" rows="1"
+     placeholder="Schreibe eine Nachricht an Void AI …"
+     aria-label="Nachricht an Void AI"></textarea>
+    <button id="sendButton" class="send" type="submit"
+     aria-label="Nachricht senden">➤</button>
+   </form>
+   <div class="composer-help">Enter zum Senden · Shift + Enter für eine neue Zeile</div>
+  </div>
+ </main>
+</section>
+
+<script>
+"use strict";
+
+/* SUPABASE – Authentifizierung */
+const SUPABASE_URL = "https://onewdrztvuffzxdnqmvi.supabase.co";
+const SUPABASE_KEY = "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA";
+
+/* DEIN BESTEHENDER WORKER – NICHT VERÄNDERT */
+const AI_URL = "https://void-ai-api.cguerpinar.workers.dev/";
 
 const $ = id => document.getElementById(id);
 
-const form = $("authForm");
+const authScreen = $("authScreen");
+const chatScreen = $("chatScreen");
+const authForm = $("authForm");
+const authSubmit = $("authSubmit");
+const authMessage = $("authMessage");
 const nameInput = $("name");
 const emailInput = $("email");
 const passwordInput = $("password");
 const confirmInput = $("confirmPassword");
-const button = $("submitButton");
-const message = $("message");
+const chatForm = $("chatForm");
+const chatInput = $("chatInput");
+const sendButton = $("sendButton");
+const messages = $("messages");
 
+let supabaseClient = null;
 let mode = "register";
-let client;
+let busy = false;
+let chatHistory = [];
+let currentUser = null;
 
-function showMessage(text, type = "info") {
- message.textContent = text;
- message.className = type;
- message.hidden = false;
+function showAuthMessage(text, type = "info") {
+ authMessage.textContent = text;
+ authMessage.className = type;
+ authMessage.hidden = false;
 }
 
-function setMode(nextMode) {
- mode = nextMode;
+function showChatNotice(text, type = "info") {
+ const el = $("chatNotice");
+ el.textContent = text;
+ el.className = type;
+ el.classList.remove("hidden");
+}
+
+function hideChatNotice() {
+ $("chatNotice").classList.add("hidden");
+}
+
+function setMode(next) {
+ mode = next;
  const registering = mode === "register";
 
  $("registerTab").classList.toggle("active", registering);
  $("loginTab").classList.toggle("active", !registering);
-
- $("nameGroup").hidden = !registering;
- $("confirmGroup").hidden = !registering;
+ $("nameGroup").classList.toggle("hidden", !registering);
+ $("confirmGroup").classList.toggle("hidden", !registering);
 
  nameInput.required = registering;
  confirmInput.required = registering;
-
  passwordInput.autocomplete =
   registering ? "new-password" : "current-password";
 
- $("subtitle").textContent = registering
-  ? "Erstelle dein kostenloses Konto"
-  : "Willkommen zurück bei Void AI";
+ $("authSubtitle").textContent = registering
+  ? "Deine KI. Dein Raum. Kostenlos starten."
+  : "Schön, dass du wieder da bist.";
 
- button.textContent = registering ? "Konto erstellen" : "Anmelden";
- showMessage(
-  registering
-   ? "Gib deine Daten ein, um ein Konto zu erstellen."
-   : "Gib deine E-Mail-Adresse und dein Passwort ein."
- );
+ authSubmit.textContent = registering ? "Konto erstellen" : "Anmelden";
+ showAuthMessage(registering
+  ? "Erstelle dein Konto mit deiner E-Mail-Adresse."
+  : "Melde dich mit deinem bestehenden Konto an.");
 }
 
 $("registerTab").addEventListener("click", () => setMode("register"));
 $("loginTab").addEventListener("click", () => setMode("login"));
 
-function checkPasswords() {
+function passwordsMatch() {
  confirmInput.setCustomValidity("");
 
  if (mode !== "register") return true;
@@ -177,71 +397,95 @@ function checkPasswords() {
  return true;
 }
 
-passwordInput.addEventListener("input", checkPasswords);
-confirmInput.addEventListener("input", checkPasswords);
+passwordInput.addEventListener("input", passwordsMatch);
+confirmInput.addEventListener("input", passwordsMatch);
 
-function friendlyError(error) {
- const text = error?.message || "Unbekannter Fehler.";
+function readableAuthError(error) {
+ const msg = error && error.message ? error.message : "Unbekannter Fehler.";
 
- if (/invalid login credentials/i.test(text))
-  return "E-Mail oder Passwort ist falsch.";
+ if (/invalid login credentials/i.test(msg))
+  return "E-Mail oder Passwort ist falsch. Prüfe deine Eingaben.";
 
- if (/email not confirmed/i.test(text))
-  return "Deine E-Mail ist noch nicht bestätigt. Prüfe dein Postfach.";
+ if (/email not confirmed/i.test(msg))
+  return "Deine E-Mail muss erst bestätigt werden. Prüfe dein Postfach.";
 
- if (/already registered|already been registered/i.test(text))
-  return "Diese E-Mail ist bereits registriert. Wähle Anmelden.";
+ if (/already registered|already been registered/i.test(msg))
+  return "Diese E-Mail ist bereits registriert. Wechsle zu Anmelden.";
 
- if (/password should be at least/i.test(text))
-  return "Dein Passwort ist zu kurz.";
+ if (/password should be at least/i.test(msg))
+  return "Das Passwort ist zu kurz.";
 
- if (/failed to fetch|networkerror|fetch failed/i.test(text))
-  return "Keine Verbindung zu Supabase. Prüfe dein Internet und lade die Seite neu.";
+ if (/failed to fetch|networkerror|fetch failed/i.test(msg))
+  return "Verbindung fehlgeschlagen. Prüfe dein Internet und lade die Seite neu.";
 
- return "Supabase meldet: " + text;
+ return "Fehler: " + msg;
 }
 
-form.addEventListener("submit", async event => {
+function showChat(user) {
+ currentUser = user;
+ authScreen.classList.add("hidden");
+ chatScreen.classList.remove("hidden");
+
+ $("userLabel").textContent =
+  user.user_metadata?.name || user.email || "Angemeldet";
+
+ hideChatNotice();
+ chatInput.focus();
+}
+
+function showLogin() {
+ currentUser = null;
+ chatScreen.classList.add("hidden");
+ authScreen.classList.remove("hidden");
+ setMode("login");
+}
+
+authForm.addEventListener("submit", async event => {
  event.preventDefault();
 
- if (!client) {
-  showMessage("Supabase ist nicht bereit. Lade die Seite neu.", "error");
+ if (!supabaseClient) {
+  showAuthMessage("Supabase ist nicht geladen. Lade die Seite neu.", "error");
   return;
  }
+
+ if (busy) return;
 
  const email = emailInput.value.trim();
  const password = passwordInput.value;
 
+ if (!email || !password) {
+  showAuthMessage("Bitte fülle E-Mail-Adresse und Passwort aus.", "error");
+  return;
+ }
+
  if (mode === "register") {
   if (nameInput.value.trim().length < 2) {
-   showMessage("Bitte gib einen Namen mit mindestens 2 Zeichen ein.", "error");
+   showAuthMessage("Dein Name muss mindestens 2 Zeichen haben.", "error");
    nameInput.focus();
    return;
   }
 
   if (password.length < 8) {
-   showMessage("Das Passwort muss mindestens 8 Zeichen haben.", "error");
+   showAuthMessage("Dein Passwort muss mindestens 8 Zeichen haben.", "error");
    passwordInput.focus();
    return;
   }
 
-  if (!checkPasswords()) {
-   showMessage("Die beiden Passwörter sind nicht gleich.", "error");
+  if (!passwordsMatch()) {
+   showAuthMessage("Beide Passwörter müssen gleich sein.", "error");
    confirmInput.focus();
    return;
   }
  }
 
- button.disabled = true;
- button.textContent = mode === "register"
-  ? "Konto wird erstellt …"
-  : "Anmeldung läuft …";
-
- showMessage("Anfrage wird gesendet …");
+ busy = true;
+ authSubmit.disabled = true;
+ authSubmit.textContent = mode === "register"
+  ? "Konto wird erstellt …" : "Anmeldung läuft …";
 
  try {
   if (mode === "register") {
-   const { data, error } = await client.auth.signUp({
+   const { data, error } = await supabaseClient.auth.signUp({
     email,
     password,
     options: {
@@ -254,52 +498,210 @@ form.addEventListener("submit", async event => {
 
    if (error) throw error;
 
-   if (data.session) {
-    showMessage(
-     "Konto erfolgreich erstellt! Du bist jetzt angemeldet.",
-     "success"
-    );
+   /*
+    * Supabase verwaltet eindeutige E-Mail-Adressen.
+    * Eine erneute Registrierung erzeugt kein zweites Konto
+    * mit derselben E-Mail-Adresse.
+    */
+   if (data.session && data.user) {
+    showAuthMessage("Konto erstellt! Du wirst angemeldet …", "success");
+    showChat(data.user);
    } else {
-    showMessage(
-     "Registrierung erfolgreich angefragt! Falls E-Mail-Bestätigung in Supabase aktiviert ist, bestätige zuerst deine E-Mail. Danach kannst du dich anmelden.",
+    setMode("login");
+    emailInput.value = email;
+    showAuthMessage(
+     "Registrierung abgeschickt. Wenn E-Mail-Bestätigung aktiviert ist, bestätige deine E-Mail und melde dich danach hier an. Eine bereits verwendete E-Mail kann kein zweites Konto anlegen.",
      "success"
     );
    }
   } else {
-   const { data, error } = await client.auth.signInWithPassword({
-    email,
-    password
-   });
+   const { data, error } =
+    await supabaseClient.auth.signInWithPassword({ email, password });
 
    if (error) throw error;
 
-   if (data.user) {
-    showMessage(
-     "Erfolgreich angemeldet! Willkommen bei Void AI, " +
-     (data.user.user_metadata?.name || data.user.email) + ".",
-     "success"
-    );
-   } else {
-    showMessage("Anmeldung nicht abgeschlossen. Bitte versuche es erneut.", "error");
+   if (!data.user) {
+    throw new Error("Kein Benutzer zurückgegeben. Bitte erneut versuchen.");
    }
+
+   showChat(data.user);
   }
  } catch (error) {
-  console.error("Void AI Anmeldung:", error);
-  showMessage(friendlyError(error), "error");
+  console.error("Void AI Auth:", error);
+  showAuthMessage(readableAuthError(error), "error");
  } finally {
-  button.disabled = false;
-  button.textContent = mode === "register" ? "Konto erstellen" : "Anmelden";
+  busy = false;
+  authSubmit.disabled = false;
+  authSubmit.textContent = mode === "register"
+   ? "Konto erstellen" : "Anmelden";
  }
 });
 
-try {
- client = createClient(SUPABASE_URL, SUPABASE_KEY);
- showMessage("Verbindung bereit. Du kannst dich registrieren oder anmelden.", "success");
-} catch (error) {
- console.error(error);
- showMessage("Supabase konnte nicht gestartet werden: " + (error.message || error), "error");
- button.disabled = true;
+/* CHAT */
+function addMessage(role, text) {
+ $("welcome").classList.add("hidden");
+
+ const row = document.createElement("div");
+ row.className = "message-row " + (role === "user" ? "user" : "assistant");
+
+ const avatar = document.createElement("div");
+ avatar.className = "avatar";
+ avatar.textContent = role === "user" ? "Du" : "V";
+
+ const content = document.createElement("div");
+ content.style.minWidth = "0";
+
+ const bubble = document.createElement("div");
+ bubble.className = "bubble";
+ bubble.textContent = text;
+
+ content.appendChild(bubble);
+
+ if (role !== "user") {
+  const actions = document.createElement("div");
+  actions.className = "message-actions";
+
+  const copy = document.createElement("button");
+  copy.className = "copy-btn";
+  copy.type = "button";
+  copy.textContent = "Antwort kopieren";
+  copy.addEventListener("click", async () => {
+   try {
+    await navigator.clipboard.writeText(text);
+    copy.textContent = "Kopiert ✓";
+   } catch {
+    copy.textContent = "Kopieren nicht möglich";
+   }
+  });
+
+  actions.appendChild(copy);
+  content.appendChild(actions);
+ }
+
+ row.appendChild(avatar);
+ row.appendChild(content);
+ messages.appendChild(row);
+
+ window.scrollTo({top: document.body.scrollHeight, behavior:"smooth"});
+ return row;
 }
-</script>
-</body>
-</html>
+
+function setBusyChat(value) {
+ busy = value;
+ sendButton.disabled = value;
+ chatInput.disabled = value;
+ $("typing").classList.toggle("hidden", !value);
+ sendButton.textContent = value ? "…" : "➤";
+}
+
+async function sendMessage(text) {
+ if (!currentUser) {
+  showChatNotice("Bitte melde dich zuerst an.", "error");
+  return;
+ }
+
+ if (busy) return;
+
+ text = text.trim();
+ if (!text) return;
+
+ hideChatNotice();
+ addMessage("user", text);
+ chatHistory.push({ role: "user", content: text });
+
+ chatInput.value = "";
+ chatInput.style.height = "auto";
+ setBusyChat(true);
+
+ try {
+  /*
+   * Der Worker erwartet {message: "..."} und antwortet
+   * mit {reply: "..."}.
+   * Der Worker selbst wird nicht geändert.
+   */
+  const response = await fetch(AI_URL, {
+   method: "POST",
+   headers: {"Content-Type": "application/json"},
+   body: JSON.stringify({message: text})
+  });
+
+  let data;
+  try {
+   data = await response.json();
+  } catch {
+   throw new Error("Die KI hat keine gültige Antwort zurückgegeben.");
+  }
+
+  if (!response.ok) {
+   throw new Error(data.error || ("HTTP " + response.status));
+  }
+
+  const answer = data.reply || data.response;
+
+  if (!answer) {
+   throw new Error(data.error || "Die KI hat eine leere Antwort gesendet.");
+  }
+
+  addMessage("assistant", String(answer));
+  chatHistory.push({ role: "assistant", content: String(answer) });
+ } catch (error) {
+  console.error("Void AI Chat:", error);
+  showChatNotice(
+   "Nachricht konnte nicht gesendet werden: " +
+   (error.message || "Unbekannter Fehler") +
+   " Prüfe, ob der Worker erreichbar ist und Anfragen von deiner Website erlaubt.",
+   "error"
+  );
+ } finally {
+  setBusyChat(false);
+  chatInput.disabled = false;
+  chatInput.focus();
+ }
+}
+
+chatForm.addEventListener("submit", event => {
+ event.preventDefault();
+ sendMessage(chatInput.value);
+});
+
+chatInput.addEventListener("keydown", event => {
+ if (event.key === "Enter" && !event.shiftKey) {
+  event.preventDefault();
+  chatForm.requestSubmit();
+ }
+});
+
+chatInput.addEventListener("input", () => {
+ chatInput.style.height = "auto";
+ chatInput.style.height = Math.min(chatInput.scrollHeight, 160) + "px";
+});
+
+document.querySelectorAll(".suggestion").forEach(button => {
+ button.addEventListener("click", () => {
+  chatInput.value = button.textContent.trim();
+  chatInput.focus();
+  chatInput.style.height = "auto";
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 160) + "px";
+ });
+});
+
+$("newChat").addEventListener("click", () => {
+ messages.replaceChildren();
+ chatHistory = [];
+ $("welcome").classList.remove("hidden");
+ hideChatNotice();
+ chatInput.value = "";
+ chatInput.focus();
+});
+
+$("logoutButton").addEventListener("click", async () => {
+ if (!supabaseClient) return;
+
+ const { error } = await supabaseClient.auth.signOut();
+
+ if (error) {
+  showChatNotice("Abmelden fehlgeschlagen: " + error.message, "error");
+  return;
+ }
+
+ messages

@@ -3,418 +3,430 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#080510">
-<title>Void AI</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07040f">
+<title>Void AI — Deine KI. Deine Welt.</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root {
-  color-scheme: dark;
-  --bg: #080510;
-  --panel: rgba(22, 14, 39, .92);
-  --purple: #a855f7;
-  --pink: #ec4899;
-  --text: #f6f0ff;
-  --muted: #a69bb9;
-  --border: rgba(190, 130, 255, .2);
+:root{
+  color-scheme:dark;
+  --bg:#07040f;--panel:#0c0818;--panel2:#120b21;
+  --purple:#a855f7;--pink:#d946ef;--text:#f6f0ff;
+  --muted:#9585b6;--border:#6733a755;--glow:#8b5cf633;
 }
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-body {
-  margin: 0; min-height: 100vh;
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;min-height:100vh;color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;
   background:
-    radial-gradient(ellipse at 15% 15%, #32105b70, transparent 42%),
-    radial-gradient(ellipse at 85% 80%, #64144740, transparent 40%),
+    radial-gradient(ellipse at 12% 35%,#42136a44,transparent 38%),
+    radial-gradient(ellipse at 91% 88%,#55114d30,transparent 35%),
     var(--bg);
-  color: var(--text);
-  font-family: Inter, system-ui, -apple-system, sans-serif;
 }
-button, input, textarea { font: inherit; }
-button { cursor: pointer; }
-button:disabled { opacity: .55; cursor: wait; }
-button:focus-visible, input:focus-visible, textarea:focus-visible {
-  outline: 2px solid #d8a6ff; outline-offset: 3px;
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;color:inherit}
+button:disabled{opacity:.55;cursor:wait}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:2px solid #d9a4ff;outline-offset:3px
 }
-#intro {
-  position: fixed; inset: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: center;
-  flex-direction: column; text-align: center; padding: 24px;
+.topbar{
+  min-height:82px;display:flex;align-items:center;justify-content:space-between;
+  gap:18px;padding:12px 3.2%;border-bottom:1px solid var(--border);
+  background:#090511dc;backdrop-filter:blur(18px)
+}
+.brand{display:flex;align-items:center;gap:15px;min-width:0}
+.brand-name{font-size:25px;letter-spacing:.18em;font-weight:850}
+.tagline{font-size:13px;color:#a895d5;margin-top:3px;letter-spacing:.02em}
+.nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.nav button{background:transparent;border:1px solid transparent;color:#b9a8db;padding:10px 12px;border-radius:11px}
+.nav button:hover,.nav button.active{background:#27143e;border-color:var(--border);color:#fff}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 15px;border-radius:12px;border:1px solid var(--border);
+  background:#171024;color:#f8f2ff;transition:filter .15s,transform .15s
+}
+.btn:hover{filter:brightness(1.22)}
+.btn:active{transform:scale(.98)}
+.primary{
+  background:linear-gradient(110deg,#6722d8,#a333e6 58%,#d946b8);
+  border-color:transparent;box-shadow:0 5px 25px #922be733;font-weight:700
+}
+.small{font-size:12px;color:var(--muted)}
+.layout{
+  width:min(1600px,100%);margin:auto;padding:22px 2.3%;
+  display:grid;grid-template-columns:minmax(310px, .78fr) minmax(0,1.72fr);
+  gap:16px;align-items:stretch
+}
+.card{
+  min-width:0;border:1px solid var(--border);border-radius:18px;
+  background:linear-gradient(145deg,#100a1deF,#090612f7);
+  box-shadow:0 18px 70px #0004,0 0 36px #8b5cf60a;
+  overflow:hidden
+}
+.left-card{padding:28px 26px;display:flex;flex-direction:column}
+.hero{text-align:center;padding:12px 0 20px}
+.hero h1{font-size:clamp(30px,4vw,44px);letter-spacing:.14em;margin:15px 0 5px}
+.hero p{margin:0;color:#a995d5}
+.saturn{position:relative;display:inline-block;width:125px;height:110px;filter:drop-shadow(0 0 20px #a855f7aa)}
+.saturn .planet{
+  position:absolute;width:69px;height:69px;left:28px;top:20px;border-radius:50%;
   background:
-    radial-gradient(ellipse at center, #32105c 0%, #10091e 46%, #07040d 100%);
-  transition: opacity .45s ease, visibility .45s ease;
+    radial-gradient(ellipse at 33% 24%,#f7d6ff 0%,#d5a0ff 12%,transparent 28%),
+    repeating-linear-gradient(170deg,#d5a0ff 0 4px,#a75aee 5px 9px,#7831bd 10px 14px,#48206e 15px 19px);
+  box-shadow:inset -12px -9px 19px #17052d,0 0 24px #a855f755
 }
-#intro.hide { opacity: 0; visibility: hidden; pointer-events: none; }
-.orb {
-  position: relative; width: 124px; height: 124px; border-radius: 50%;
-  margin-bottom: 30px;
-  background: radial-gradient(circle at 32% 27%, #f0c5ff, #b44cff 25%, #5b1bb2 55%, #160727 75%);
-  box-shadow: 0 0 35px #a855f7a0, 0 0 95px #8b5cf680, inset -10px -12px 30px #080510;
-  animation: float 2.5s ease-in-out infinite, pulse 2s ease-in-out infinite;
+.saturn .ring{
+  position:absolute;width:124px;height:39px;left:0;top:37px;border-radius:50%;
+  border:7px solid #c58aff;transform:rotate(-24deg);
+  box-shadow:0 0 9px #a855f7, inset 0 0 7px #8b5cf7;
 }
-.orb:before, .orb:after {
-  content: ""; position: absolute; inset: -12px; border: 1px solid #d6a1ff88;
-  border-radius: 50%; transform: rotateX(68deg) rotate(-25deg);
+.saturn .ring-back{
+  position:absolute;width:124px;height:39px;left:0;top:37px;border-radius:50%;
+  border:5px solid #6f34b9;transform:rotate(-24deg);
 }
-.orb:after { inset: -23px; transform: rotateX(68deg) rotate(35deg); border-color: #ec489988; }
-@keyframes float { 50% { transform: translateY(-9px); } }
-@keyframes pulse { 50% { box-shadow: 0 0 55px #a855f7c0, 0 0 120px #8b5cf680; } }
-#intro h1 {
-  font-size: clamp(32px, 8vw, 54px); letter-spacing: .12em;
-  margin: 0; text-shadow: 0 0 28px #b65aff;
+.saturn .planet{z-index:2}
+.saturn .ring{z-index:3;clip-path:polygon(0 0,100% 0,100% 45%,0 45%)}
+.saturn .ring-back{z-index:1}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;padding:4px;background:#0a0612;border:1px solid var(--border);border-radius:12px;gap:4px;margin:0 0 18px}
+.auth-tabs button{border:0;background:transparent;color:#a99bc6;padding:11px;border-radius:9px}
+.auth-tabs button.active{background:linear-gradient(110deg,#5721c4,#922be3);color:white}
+.field{display:block;margin:15px 0}
+.field span{display:block;font-size:13px;color:#b7a8d5;margin-bottom:7px}
+.field input{
+  width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);
+  background:#090611;color:#fff
 }
-#intro p { color: #c7b6df; margin: 13px 0 25px; }
-.loader { width: 150px; height: 3px; border-radius: 9px; overflow: hidden; background: #342347; }
-.loader:after {
-  content: ""; display: block; height: 100%; width: 40%;
-  background: linear-gradient(90deg, var(--purple), var(--pink));
-  animation: load 3s linear forwards;
+.field input:focus{border-color:var(--purple)}
+.full{width:100%}
+.message{font-size:13px;line-height:1.5;overflow-wrap:anywhere;margin-top:12px;min-height:0}
+.error{color:#ff9eb4}.success{color:#91edbc}
+.text-btn{background:transparent;border:0;color:#c17bff;padding:12px 5px}
+.separator{height:1px;background:var(--border);margin:20px 0}
+.credit{
+  margin-top:auto;padding-top:24px;text-align:center;color:#655777;
+  font-size:12px;letter-spacing:.015em
 }
-@keyframes load { to { width: 100%; } }
-
-header {
-  position: sticky; top: 0; z-index: 5;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 18px; background: #0b0715ed;
-  backdrop-filter: blur(18px); border-bottom: 1px solid var(--border);
+.right-card{display:flex;flex-direction:column;min-height:690px}
+.chat-top{
+  padding:17px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;border-bottom:1px solid var(--border)
 }
-.brand { display: flex; gap: 10px; align-items: center; font-weight: 800; letter-spacing: .04em; }
-.brand-icon {
-  display: grid; place-items: center; width: 35px; height: 35px; border-radius: 12px;
-  background: linear-gradient(135deg, #a855f7, #ec4899);
-  box-shadow: 0 0 22px #a855f750;
+.chat-title{display:flex;align-items:center;gap:12px}
+.chat-title .saturn{transform:scale(.44);transform-origin:center;width:48px;height:48px;margin:-10px -5px}
+.chat-title strong{font-size:18px}
+.chat-title p{font-size:12px;color:var(--muted);margin:4px 0 0}
+.chat-area{display:grid;grid-template-columns:minmax(0,1fr) 245px;flex:1;min-height:0}
+.conversation{display:flex;flex-direction:column;min-width:0;padding:18px 16px 0}
+.messages{display:flex;flex-direction:column;gap:15px;flex:1;min-height:250px;overflow-wrap:anywhere}
+.bubble{max-width:94%;padding:14px 15px;border-radius:15px;line-height:1.65;font-size:14px;overflow-wrap:anywhere}
+.bubble p{margin:0 0 10px}.bubble p:last-child{margin-bottom:0}
+.bubble pre{background:#08050e;padding:12px;border-radius:9px;overflow-x:auto;max-width:100%}
+.bubble code{font-family:ui-monospace,monospace;font-size:.92em}
+.assistant{align-self:flex-start;background:linear-gradient(140deg,#171027,#0d0918);border:1px solid var(--border);border-bottom-left-radius:5px}
+.user{align-self:flex-end;background:linear-gradient(120deg,#42147e,#6a2599);border:1px solid #a855f755;border-bottom-right-radius:5px}
+.bubble-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.bubble-actions button{font-size:11px;padding:6px 9px}
+.composer{padding:13px 0 15px;background:linear-gradient(transparent,#0c0818 15%)}
+.composer-box{
+  display:flex;align-items:flex-end;gap:7px;padding:8px;
+  border:1px solid #7436a877;background:#0b0714;border-radius:17px
 }
-.small { font-size: 12px; color: var(--muted); }
-main { width: min(100% - 28px, 820px); margin: 30px auto 100px; }
-.panel {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 22px; padding: clamp(20px, 5vw, 32px);
-  box-shadow: 0 20px 80px #0004, 0 0 35px #9b4dff0c;
-  backdrop-filter: blur(16px);
+.composer textarea{
+  min-width:0;flex:1;resize:none;max-height:150px;min-height:43px;
+  padding:11px 9px;border:0;background:transparent;color:#fff;outline:none
 }
-h2 { margin-top: 0; }
-.muted { color: var(--muted); }
-.field { display: block; margin: 15px 0; }
-.field span { display: block; font-size: 13px; color: #c9bbdd; margin-bottom: 7px; }
-input, textarea {
-  width: 100%; border: 1px solid var(--border); border-radius: 12px;
-  padding: 13px 14px; background: #0b0714; color: var(--text);
+.composer textarea:focus{outline:none}
+.icon-btn{width:43px;height:43px;flex:none;padding:5px;border-radius:13px}
+.voice-status{min-height:18px;font-size:12px;color:#c9a0ff;padding:0 6px 5px}
+.history{
+  border-left:1px solid var(--border);padding:18px 12px;
+  display:flex;flex-direction:column;min-width:0
 }
-input:focus, textarea:focus { border-color: var(--purple); }
-.btn {
-  border: 1px solid var(--border); border-radius: 12px;
-  padding: 12px 16px; background: #201431; color: white;
-  transition: transform .15s, filter .15s;
+.history h3{font-size:14px;margin:2px 5px 14px}
+.history-list{display:flex;flex-direction:column;gap:7px}
+.history-item{
+  width:100%;text-align:left;padding:12px 10px;border-radius:11px;
+  background:transparent;border:1px solid transparent;color:#bba9db;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px
 }
-.btn:hover { filter: brightness(1.2); }
-.btn:active { transform: scale(.98); }
-.primary {
-  border: 0; background: linear-gradient(110deg, #8b35e9, #c13fd1 55%, #e04491);
-  box-shadow: 0 6px 24px #9d36db35; font-weight: 700;
+.history-item:hover,.history-item.active{background:#29113f;border-color:var(--border);color:#fff}
+.history-note{margin-top:auto;padding:15px 5px 0;border-top:1px solid var(--border);font-size:11px;color:#78688f;line-height:1.5}
+footer{padding:8px 15px 25px;text-align:center;color:#625374;font-size:12px}
+footer strong{color:#79688d;font-weight:500}
+@media(max-width:1000px){
+ .topbar{padding:12px 16px}.nav button{padding:8px}
+ .layout{grid-template-columns:minmax(260px,.75fr) minmax(0,1.4fr);padding:14px}
+ .chat-area{grid-template-columns:minmax(0,1fr) 190px}
+ .left-card{padding:22px 18px}
 }
-.full { width: 100%; }
-.actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 16px; }
-.message { margin-top: 14px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
-.error { color: #ff9baf; }
-.success { color: #9ff3c2; }
-.tabs { display: flex; gap: 8px; margin: 18px 0; }
-.tabs button { flex: 1; }
-.tabs .active { border-color: var(--purple); background: #51227b70; }
-
-.chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.chat-list { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0; }
-.chat-chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#messages { display: flex; flex-direction: column; gap: 15px; margin: 24px 0; }
-.bubble {
-  max-width: 92%; padding: 14px 16px; border-radius: 16px;
-  line-height: 1.65; overflow-wrap: anywhere; white-space: normal;
-}
-.user { align-self: flex-end; background: linear-gradient(135deg, #53227d, #713c82); border-bottom-right-radius: 5px; }
-.assistant { align-self: flex-start; background: #151020; border: 1px solid var(--border); border-bottom-left-radius: 5px; }
-.bubble pre { overflow-x: auto; padding: 12px; border-radius: 9px; background: #08060e; }
-.bubble code { font-family: ui-monospace, monospace; font-size: .92em; }
-.bubble p { margin: 0 0 10px; }
-.bubble p:last-child { margin-bottom: 0; }
-.bubble-actions { display: flex; gap: 8px; margin-top: 10px; }
-.bubble-actions button { padding: 5px 9px; font-size: 12px; }
-.composer {
-  position: sticky; bottom: 0; padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
-  background: linear-gradient(transparent, #080510 18%);
-}
-.composer-box {
-  display: flex; align-items: flex-end; gap: 8px; padding: 9px;
-  background: #120c1d; border: 1px solid #a855f755; border-radius: 18px;
-  box-shadow: 0 0 30px #7c3aed15;
-}
-#prompt { resize: none; min-height: 42px; max-height: 140px; border: 0; background: transparent; padding: 10px; }
-.icon-btn { min-width: 42px; height: 42px; padding: 8px; border-radius: 12px; }
-#voiceStatus { min-height: 18px; padding: 4px 8px; font-size: 12px; color: #d7a8ff; }
-footer { text-align: center; padding: 30px 15px; color: #857994; font-size: 12px; }
-@media (max-width: 480px) {
-  header { padding: 12px; }
-  main { width: calc(100% - 18px); margin-top: 18px; }
-  .bubble { max-width: 96%; }
-  .composer-box { gap: 5px; }
-  .icon-btn { min-width: 38px; padding: 6px; }
+@media(max-width:720px){
+ .topbar{min-height:66px}.brand-name{font-size:19px}.tagline{font-size:11px}
+ .topbar .nav{gap:4px}.topbar .nav button{font-size:12px;padding:8px 6px}
+ .layout{grid-template-columns:1fr;padding:10px;gap:12px}
+ .left-card{padding:20px}
+ .hero{padding:2px 0 16px}.hero h1{font-size:31px}
+ .right-card{min-height:600px}
+ .chat-area{grid-template-columns:minmax(0,1fr)}
+ .history{border-left:0;border-top:1px solid var(--border);padding:12px}
+ .history h3{margin-bottom:8px}
+ .history-list{flex-direction:row;overflow-x:auto}
+ .history-item{width:150px;flex:none}
+ .history-note{display:none}
+ .chat-top{padding:13px}
+ .conversation{padding:12px 10px 0}
+ .bubble{max-width:98%;font-size:14px}
+ .credit{padding-top:20px}
 }
 </style>
 </head>
 <body>
 
-<section id="intro" aria-label="Void AI wird geladen">
-  <div class="orb"></div>
-  <h1>WELCOME TO VOID AI</h1>
-  <p>Your personal helper</p>
-  <div class="loader"></div>
-  <p class="small">Created by zabntos with OpenAI technology</p>
-</section>
-
-<header>
-  <div class="brand"><div class="brand-icon">✦</div><div>VOID AI<div class="small">Deine KI. Deine Welt.</div></div></div>
-  <button id="logoutBtn" class="btn" hidden>Abmelden</button>
+<header class="topbar">
+  <div class="brand">
+    <div class="saturn" aria-hidden="true">
+      <div class="ring-back"></div><div class="planet"></div><div class="ring"></div>
+    </div>
+    <div><div class="brand-name">VOID AI</div><div class="tagline">Deine KI. Deine Welt.</div></div>
+  </div>
+  <nav class="nav">
+    <button class="active" id="chatNav">⌂ Chat</button>
+    <button id="historyNav">▤ Verlauf</button>
+    <button id="settingsNav">⚙ Einstellungen</button>
+    <button id="logoutBtn" hidden>Abmelden</button>
+  </nav>
 </header>
 
-<main>
-  <section id="authScreen" class="panel" hidden>
-    <h2 id="authTitle">Willkommen zurück</h2>
-    <p class="muted">Melde dich an oder erstelle dein Void-AI-Konto.</p>
-
-    <div class="tabs">
-      <button id="loginTab" class="btn active">Anmelden</button>
-      <button id="registerTab" class="btn">Registrieren</button>
+<main class="layout">
+  <aside class="card left-card">
+    <div class="hero">
+      <div class="saturn" aria-label="Lila Saturn">
+        <div class="ring-back"></div><div class="planet"></div><div class="ring"></div>
+      </div>
+      <h1>VOID AI</h1>
+      <p>Deine KI. Deine Welt.</p>
     </div>
 
-    <form id="authForm">
-      <label id="nameWrap" class="field" hidden>
-        <span>Name</span>
-        <input id="name" autocomplete="name" maxlength="60" placeholder="Dein Name">
-      </label>
-      <label class="field">
-        <span>E-Mail-Adresse</span>
-        <input id="email" type="email" autocomplete="email" required placeholder="du@beispiel.de">
-      </label>
-      <label class="field">
-        <span>Passwort</span>
-        <input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="Mindestens 6 Zeichen">
-      </label>
-      <label id="confirmWrap" class="field" hidden>
-        <span>Passwort bestätigen</span>
-        <input id="confirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Passwort wiederholen">
-      </label>
-      <button id="authSubmit" class="btn primary full" type="submit">Anmelden</button>
-    </form>
-    <button id="forgotBtn" class="btn full" style="margin-top:10px">Passwort vergessen?</button>
-    <div id="authMessage" class="message" role="status" aria-live="polite"></div>
-  </section>
+    <section id="authScreen">
+      <div class="auth-tabs">
+        <button id="loginTab" class="active" type="button">Anmelden</button>
+        <button id="registerTab" type="button">Registrieren</button>
+      </div>
+      <form id="authForm">
+        <label class="field" id="nameField" hidden>
+          <span>Name</span><input id="name" autocomplete="name" maxlength="60" placeholder="Dein Name">
+        </label>
+        <label class="field">
+          <span>E-Mail-Adresse</span>
+          <input id="email" type="email" autocomplete="email" required placeholder="deine@beispiel.de">
+        </label>
+        <label class="field">
+          <span>Passwort</span>
+          <input id="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Mindestens 6 Zeichen">
+        </label>
+        <label class="field" id="confirmField" hidden>
+          <span>Passwort bestätigen</span>
+          <input id="confirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Passwort wiederholen">
+        </label>
+        <button id="authSubmit" class="btn primary full" type="submit">Anmelden →</button>
+      </form>
+      <button id="forgotBtn" class="text-btn full" type="button">Passwort vergessen?</button>
+      <div id="authMessage" class="message" role="status" aria-live="polite"></div>
+      <div class="separator"></div>
+      <div style="text-align:center;font-size:13px;color:var(--muted)">
+        Noch kein Konto? <button id="registerLink" class="text-btn" type="button">Registrieren</button>
+      </div>
+    </section>
 
-  <section id="appScreen" hidden>
-    <div class="panel">
-      <div class="chat-head">
-        <div>
-          <h2 style="margin-bottom:4px">Dein Void Space ✦</h2>
-          <div id="welcomeText" class="muted">Dein persönlicher AI-Chat</div>
+    <section id="accountScreen" hidden>
+      <h2 style="font-size:19px">Dein Void Space ✦</h2>
+      <p class="small">Du bist angemeldet.</p>
+      <div id="accountEmail" style="overflow-wrap:anywhere;font-size:13px"></div>
+      <div class="separator"></div>
+      <button id="newChatBtn" class="btn primary full" type="button">＋ Neuer Chat</button>
+      <button id="accountLogout" class="btn full" type="button" style="margin-top:9px">Abmelden</button>
+      <p class="small" style="line-height:1.7;margin-top:18px">Deine Chats werden auf diesem Gerät gespeichert. Sie werden nicht automatisch auf andere Geräte übertragen.</p>
+    </section>
+
+    <div class="credit">Created by Zabntos with OpenAI technology</div>
+  </aside>
+
+  <section class="card right-card">
+    <div class="chat-top">
+      <div class="chat-title">
+        <div class="saturn" aria-hidden="true">
+          <div class="ring-back"></div><div class="planet"></div><div class="ring"></div>
         </div>
-        <button id="newChatBtn" class="btn primary">＋ Neuer Chat</button>
+        <div><strong>Void AI</strong><p>Chatte mit deiner persönlichen KI</p></div>
       </div>
-      <div id="chatList" class="chat-list"></div>
-      <div id="messages" aria-live="polite"></div>
-      <div id="chatMessage" class="message" role="status"></div>
+      <button id="newChatTop" class="btn primary" type="button">＋ Neuer Chat</button>
     </div>
 
-    <div class="composer">
-      <div id="voiceStatus"></div>
-      <div class="composer-box">
-        <button id="micBtn" class="btn icon-btn" title="Spracheingabe" aria-label="Spracheingabe">🎙</button>
-        <textarea id="prompt" rows="1" maxlength="12000" placeholder="Schreib Void AI etwas …"></textarea>
-        <button id="sendBtn" class="btn primary icon-btn" title="Senden" aria-label="Senden">➤</button>
-      </div>
-      <div class="small" style="padding:8px 5px">Enter = senden · Shift + Enter = neue Zeile</div>
+    <div class="chat-area">
+      <section class="conversation">
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <div id="chatMessage" class="message" role="status" aria-live="polite"></div>
+        <div class="composer">
+          <div id="voiceStatus" class="voice-status"></div>
+          <div class="composer-box">
+            <button id="micBtn" class="btn icon-btn" type="button" aria-label="Spracheingabe" title="Spracheingabe">♩</button>
+            <textarea id="prompt" rows="1" maxlength="12000" placeholder="Schreib deine Nachricht …" aria-label="Deine Nachricht"></textarea>
+            <button id="sendBtn" class="btn primary icon-btn" type="button" aria-label="Senden" title="Senden">➤</button>
+          </div>
+          <div class="small" style="padding:7px 5px">Enter = senden · Shift + Enter = neue Zeile</div>
+        </div>
+      </section>
+
+      <aside class="history" id="historyPanel">
+        <h3>Deine Chats</h3>
+        <div id="historyList" class="history-list"></div>
+        <div class="history-note">▣ Chats werden lokal auf diesem Gerät gespeichert.</div>
+      </aside>
     </div>
   </section>
 </main>
 
-<footer>Void AI kann Fehler machen. Überprüfe wichtige Antworten.<br>Deine Chats werden lokal auf diesem Gerät gespeichert.</footer>
+<footer>Void AI kann Fehler machen. Überprüfe wichtige Antworten.<br><strong>Created by Zabntos with OpenAI technology</strong></footer>
 
 <script>
 "use strict";
 
-/* =========================================================
-   VOID AI EINSTELLUNGEN
-   Supabase URL und Publishable Key hier kontrollieren.
-   Deinen bestehenden Cloudflare-Worker nicht verändern.
-   ========================================================= */
-
+/* Deine bisherigen Verbindungen: unverändert lassen. */
 const SUPABASE_URL = "https://onewdrztvuffzxdnqmvi.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA";
+const SUPABASE_KEY = "sb_publishable_X74KchzYmRvLdl_wb0ISkQ_-PNOnJAA";
 const AI_ENDPOINT = "https://void-ai-api.cguerpinar.workers.dev/";
 
-/* ========================================================= */
-
 const $ = id => document.getElementById(id);
-let sb = null;
+let supabaseClient = null;
 let currentUser = null;
 let authMode = "login";
-let authReady = false;
-let introFinished = false;
 let chats = [];
 let activeChatId = null;
-let busy = false;
+let sending = false;
 let recognition = null;
 let listening = false;
 
-const makeId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-
-function setMessage(id, text, type = "") {
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+function markdown(s) {
+  let value = escapeHTML(s);
+  const codeBlocks = [];
+  value = value.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const token = "%%BLOCK" + codeBlocks.length + "%%";
+    codeBlocks.push("<pre><code>" + code.trim() + "</code></pre>");
+    return token;
+  });
+  value = value.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+  value = value.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  value = value.replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
+  value = value.split("\n").map(line => line ? "<p>" + line + "</p>" : "").join("");
+  return value.replace(/%%BLOCK(\d+)%%/g, (_, i) => codeBlocks[Number(i)] || "");
+}
+function status(id, text, type="") {
   const el = $(id);
   el.textContent = text || "";
   el.className = "message" + (type ? " " + type : "");
 }
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, c => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-  }[c]));
+function setAuthMode(mode) {
+  authMode = mode;
+  const reg = mode === "register";
+  $("loginTab").classList.toggle("active", !reg);
+  $("registerTab").classList.toggle("active", reg);
+  $("nameField").hidden = !reg;
+  $("confirmField").hidden = !reg;
+  $("name").required = reg;
+  $("confirmPassword").required = reg;
+  $("forgotBtn").hidden = reg;
+  $("authSubmit").textContent = reg ? "Account erstellen →" : "Anmelden →";
+  status("authMessage", "");
 }
-
-/* Render simple Markdown safely, without inserting raw HTML. */
-function renderText(text) {
-  let escaped = escapeHTML(text);
-  const blocks = [];
-  escaped = escaped.replace(/```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-    const token = "%%CODEBLOCK" + blocks.length + "%%";
-    blocks.push("<pre><code>" + code.trim() + "</code></pre>");
-    return token;
-  });
-  escaped = escaped.replace(/`([^`\n]+)`/g, "<code>$1</code>");
-  escaped = escaped.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-  escaped = escaped.replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
-  escaped = escaped.split("\n").map(line => line.trim() ? "<p>" + line + "</p>" : "").join("");
-  escaped = escaped.replace(/%%CODEBLOCK(\d+)%%/g, (_, i) => blocks[Number(i)] || "");
-  return escaped;
-}
-
-function hideScreens() {
-  $("authScreen").hidden = true;
-  $("appScreen").hidden = true;
-}
-
-function showAuth() {
-  hideScreens();
-  $("authScreen").hidden = false;
-  $("logoutBtn").hidden = true;
-  setMessage("authMessage", "");
-}
-
-function showApp() {
-  hideScreens();
-  $("appScreen").hidden = false;
-  $("logoutBtn").hidden = false;
-  $("welcomeText").textContent = "Angemeldet als " + (currentUser?.email || "Void-Nutzer");
-  loadChats();
-  renderChatList();
+function renderScreen() {
+  const signedIn = !!currentUser;
+  $("authScreen").hidden = signedIn;
+  $("accountScreen").hidden = !signedIn;
+  $("logoutBtn").hidden = !signedIn;
+  $("accountEmail").textContent = currentUser?.email || "";
+  $("prompt").disabled = !signedIn;
+  $("sendBtn").disabled = !signedIn;
+  $("micBtn").disabled = !signedIn;
+  $("prompt").placeholder = signedIn ? "Schreib deine Nachricht …" : "Melde dich an, um zu chatten …";
+  renderHistory();
   renderMessages();
 }
-
-function routeToCorrectScreen() {
-  if (!introFinished || !authReady) return;
-  if (currentUser) showApp();
-  else showAuth();
-}
-
-/* This function is called once, only after the 3-second timer. */
-function finishIntro() {
-  if (introFinished) return;
-  introFinished = true;
-  $("intro").classList.add("hide");
-
-  /* If the session is still loading, show login temporarily.
-     Once the session is resolved, routeToCorrectScreen updates it. */
-  if (!authReady) showAuth();
-  else if (currentUser) showApp();
-  else showAuth();
-}
-
 function storageKey() {
-  return "void_ai_chats_" + (currentUser?.id || "guest");
+  return "void_ai_history_" + (currentUser ? currentUser.id : "guest");
 }
-
 function loadChats() {
   try {
-    const stored = localStorage.getItem(storageKey());
-    chats = stored ? JSON.parse(stored) : [];
-    if (!Array.isArray(chats)) chats = [];
-  } catch {
-    chats = [];
-  }
+    const parsed = JSON.parse(localStorage.getItem(storageKey()) || "[]");
+    chats = Array.isArray(parsed) ? parsed : [];
+  } catch { chats = []; }
 
   if (!chats.length) {
-    const chat = { id: makeId(), title: "Neuer Chat", messages: [] };
-    chats.push(chat);
+    const chat = {id: makeId(), title:"Neuer Chat", messages:[]};
+    chats = [chat];
     activeChatId = chat.id;
     saveChats();
   } else if (!chats.some(c => c.id === activeChatId)) {
     activeChatId = chats[0].id;
   }
 }
-
 function saveChats() {
-  try {
-    localStorage.setItem(storageKey(), JSON.stringify(chats.slice(-30)));
-  } catch {
-    setMessage("chatMessage", "Der Chat konnte nicht lokal gespeichert werden.", "error");
-  }
+  try { localStorage.setItem(storageKey(), JSON.stringify(chats.slice(0,40))); }
+  catch { status("chatMessage","Der Verlauf konnte nicht auf diesem Gerät gespeichert werden.","error"); }
 }
-
+function makeId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+}
 function activeChat() {
   return chats.find(c => c.id === activeChatId) || null;
 }
-
 function newChat() {
-  const chat = { id: makeId(), title: "Neuer Chat", messages: [] };
+  if (!currentUser) {
+    status("chatMessage","Melde dich links an, um einen Chat zu starten.","error");
+    return;
+  }
+  const chat = {id:makeId(),title:"Neuer Chat",messages:[]};
   chats.unshift(chat);
   activeChatId = chat.id;
   saveChats();
-  renderChatList();
+  renderHistory();
   renderMessages();
   $("prompt").focus();
 }
-
-function renderChatList() {
-  const el = $("chatList");
+function renderHistory() {
+  const el = $("historyList");
   el.replaceChildren();
-
-  chats.slice(0, 10).forEach(chat => {
+  chats.slice(0,20).forEach(chat => {
     const button = document.createElement("button");
-    button.className = "btn chat-chip" + (chat.id === activeChatId ? " primary" : "");
+    button.className = "history-item" + (chat.id === activeChatId ? " active" : "");
     button.textContent = chat.title || "Neuer Chat";
     button.title = button.textContent;
     button.addEventListener("click", () => {
       activeChatId = chat.id;
-      renderChatList();
+      renderHistory();
       renderMessages();
     });
     el.appendChild(button);
   });
 }
-
-function addBubble(message, index) {
-  const wrap = document.createElement("div");
-  wrap.className = "bubble " + (message.role === "user" ? "user" : "assistant");
+function addBubble(message) {
+  const bubble = document.createElement("div");
+  bubble.className = "bubble " + (message.role === "user" ? "user" : "assistant");
   const content = document.createElement("div");
-  content.innerHTML = renderText(message.content || "");
-  wrap.appendChild(content);
+  content.innerHTML = markdown(message.content || "");
+  bubble.appendChild(content);
 
   if (message.role === "assistant") {
     const actions = document.createElement("div");
     actions.className = "bubble-actions";
-
     const read = document.createElement("button");
     read.className = "btn";
     read.textContent = "🔊 Vorlesen";
     read.addEventListener("click", () => speak(message.content || ""));
-    actions.appendChild(read);
-
     const copy = document.createElement("button");
     copy.className = "btn";
     copy.textContent = "Kopieren";
@@ -422,161 +434,42 @@ function addBubble(message, index) {
       try {
         await navigator.clipboard.writeText(message.content || "");
         copy.textContent = "Kopiert ✓";
-      } catch {
-        copy.textContent = "Kopieren nicht verfügbar";
-      }
+      } catch { copy.textContent = "Nicht verfügbar"; }
     });
-    actions.appendChild(copy);
-    wrap.appendChild(actions);
+    actions.append(read,copy);
+    bubble.appendChild(actions);
   }
-  $("messages").appendChild(wrap);
+  $("messages").appendChild(bubble);
 }
-
 function renderMessages() {
   const el = $("messages");
   el.replaceChildren();
   const chat = activeChat();
-  if (!chat) return;
-
-  if (!chat.messages.length) {
-    const welcome = document.createElement("div");
-    welcome.className = "bubble assistant";
-    welcome.innerHTML = "<p>Hey! ✨ Ich bin Void AI. Du kannst Deutsch oder Englisch schreiben oder das Mikrofon verwenden. Wie kann ich dir helfen?</p>";
-    el.appendChild(welcome);
-  } else {
-    chat.messages.forEach((m, i) => addBubble(m, i));
+  if (!chat || !chat.messages.length) {
+    const intro = document.createElement("div");
+    intro.className = "bubble assistant";
+    intro.innerHTML = "<p>Hey! ✨ Ich bin Void AI.</p><p>Du kannst Deutsch oder Englisch schreiben. Ich helfe dir bei Fragen, Ideen, Texten und Programmierung.</p><p>Wie kann ich dir heute helfen?</p>";
+    el.appendChild(intro);
+    return;
   }
+  chat.messages.forEach(addBubble);
   el.scrollTop = el.scrollHeight;
 }
-
 function addMessage(role, content) {
   const chat = activeChat();
   if (!chat) return;
-  chat.messages.push({ role, content, at: Date.now() });
-
+  chat.messages.push({role,content,at:Date.now()});
   if (role === "user" && chat.title === "Neuer Chat") {
-    chat.title = content.trim().slice(0, 36) || "Neuer Chat";
+    chat.title = content.trim().slice(0,35) || "Neuer Chat";
   }
   saveChats();
-  renderChatList();
+  renderHistory();
   renderMessages();
 }
-
 async function sendMessage() {
-  if (busy) return;
+  if (sending) return;
   if (!currentUser) {
-    setMessage("chatMessage", "Bitte melde dich zuerst an.", "error");
+    status("chatMessage","Bitte melde dich zuerst an oder registriere dich links.","error");
     return;
   }
-
-  const input = $("prompt");
-  const message = input.value.trim();
-  if (!message) return;
-
-  input.value = "";
-  input.style.height = "auto";
-  setMessage("chatMessage", "");
-  addMessage("user", message);
-
-  busy = true;
-  $("sendBtn").disabled = true;
-  $("sendBtn").textContent = "…";
-  setMessage("chatMessage", "Void AI denkt nach …");
-
-  try {
-    const response = await fetch(AI_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message })
-    });
-
-    if (!response.ok) {
-      throw new Error("Der AI-Server antwortet mit HTTP " + response.status + ".");
-    }
-
-    const data = await response.json();
-    const reply = data.reply ?? data.response ?? data.message;
-
-    if (typeof reply !== "string" || !reply.trim()) {
-      throw new Error("Der Server hat keine lesbare Antwort zurückgegeben.");
-    }
-
-    addMessage("assistant", reply.trim());
-    setMessage("chatMessage", "");
-  } catch (error) {
-    setMessage(
-      "chatMessage",
-      "Die Antwort konnte nicht geladen werden. " +
-      (error?.message || "Prüfe deine Internetverbindung und den AI-Server."),
-      "error"
-    );
-  } finally {
-    busy = false;
-    $("sendBtn").disabled = false;
-    $("sendBtn").textContent = "➤";
-    input.focus();
-  }
-}
-
-function setAuthMode(mode) {
-  authMode = mode;
-  const register = mode === "register";
-  $("authTitle").textContent = register ? "Erstelle deinen Account" : "Willkommen zurück";
-  $("authSubmit").textContent = register ? "Account erstellen" : "Anmelden";
-  $("loginTab").classList.toggle("active", !register);
-  $("registerTab").classList.toggle("active", register);
-  $("nameWrap").hidden = !register;
-  $("confirmWrap").hidden = !register;
-  $("forgotBtn").hidden = register;
-  $("name").required = register;
-  $("confirmPassword").required = register;
-  $("password").autocomplete = register ? "new-password" : "current-password";
-  setMessage("authMessage", "");
-}
-
-async function handleAuth(event) {
-  event.preventDefault();
-  if (!sb) {
-    setMessage("authMessage", "Supabase konnte nicht geladen werden. Prüfe deine Internetverbindung.", "error");
-    return;
-  }
-
-  const email = $("email").value.trim();
-  const password = $("password").value;
-  const name = $("name").value.trim();
-
-  if (!email || !password) {
-    setMessage("authMessage", "Bitte E-Mail und Passwort ausfüllen.", "error");
-    return;
-  }
-
-  if (authMode === "register") {
-    if (password.length < 6) {
-      setMessage("authMessage", "Das Passwort muss mindestens 6 Zeichen lang sein.", "error");
-      return;
-    }
-    if (password !== $("confirmPassword").value) {
-      setMessage("authMessage", "Die beiden Passwörter stimmen nicht überein.", "error");
-      return;
-    }
-    if (!name) {
-      setMessage("authMessage", "Bitte gib deinen Namen ein.", "error");
-      return;
-    }
-  }
-
-  const button = $("authSubmit");
-  button.disabled = true;
-  button.textContent = "Einen Moment …";
-  setMessage("authMessage", "");
-
-  try {
-    if (authMode === "register") {
-      const { data, error } = await sb.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { display_name: name }
-        }
-      });
-      if (error) throw er
+  co
